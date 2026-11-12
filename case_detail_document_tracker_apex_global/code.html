@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Apex Institutional Ledger - Case CS-9402 Document Tracker</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Fonts: Hanken Grotesk & JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-secondary-fixed": "#001d31",
+            "surface-container": "#e5eeff",
+            "surface-container-lowest": "#ffffff",
+            "error": "#ba1a1a",
+            "on-primary-fixed": "#131b2e",
+            "error-container": "#ffdad6",
+            "tertiary-fixed-dim": "#62df7d",
+            "tertiary": "#000000",
+            "on-tertiary-fixed": "#002109",
+            "inverse-surface": "#213145",
+            "on-error-container": "#93000a",
+            "primary-fixed": "#dae2fd",
+            "primary-container": "#131b2e",
+            "on-surface": "#0b1c30",
+            "on-error": "#ffffff",
+            "tertiary-container": "#002109",
+            "surface-dim": "#cbdbf5",
+            "surface-variant": "#d3e4fe",
+            "primary-fixed-dim": "#bec6e0",
+            "on-secondary-container": "#00476e",
+            "tertiary-fixed": "#7ffc97",
+            "surface-tint": "#565e74",
+            "inverse-on-surface": "#eaf1ff",
+            "surface-container-high": "#dce9ff",
+            "on-secondary-fixed-variant": "#004b73",
+            "on-primary-fixed-variant": "#3f465c",
+            "surface-container-low": "#eff4ff",
+            "inverse-primary": "#bec6e0",
+            "secondary-container": "#5bb8fe",
+            "background": "#f8f9ff",
+            "on-background": "#0b1c30",
+            "on-surface-variant": "#45464d",
+            "on-secondary": "#ffffff",
+            "secondary-fixed-dim": "#93ccff",
+            "surface-container-highest": "#d3e4fe",
+            "outline": "#76777d",
+            "outline-variant": "#c6c6cd",
+            "on-primary-container": "#7c839b",
+            "secondary-fixed": "#cce5ff",
+            "surface-bright": "#f8f9ff",
+            "primary": "#000000",
+            "secondary": "#006398",
+            "on-tertiary-container": "#009842",
+            "surface": "#f8f9ff",
+            "on-tertiary": "#ffffff",
+            "on-primary": "#ffffff",
+            "on-tertiary-fixed-variant": "#005320"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-lg": "1rem",
+            "space-sm": "0.5rem",
+            "margin": "1rem",
+            "space-xs": "0.25rem",
+            "space-md": "0.75rem",
+            "margin-desktop": "2rem",
+            "space-xl": "1.5rem",
+            "gutter": "1rem",
+            "gutter-desktop": "1.5rem"
+          },
+          "fontFamily": {
+            "label-md": ["JetBrains Mono"],
+            "body-md": ["Hanken Grotesk"],
+            "headline-sm": ["Hanken Grotesk"],
+            "body-sm": ["Hanken Grotesk"],
+            "label-sm": ["JetBrains Mono"],
+            "body-lg": ["Hanken Grotesk"],
+            "headline-xl": ["Hanken Grotesk"],
+            "headline-lg": ["Hanken Grotesk"]
+          },
+          "fontSize": {
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+            "body-md": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "headline-sm": ["18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+            "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "500" }],
+            "body-lg": ["15px", { "lineHeight": "22px", "fontWeight": "400" }],
+            "headline-xl": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface antialiased selection:bg-secondary selection:text-white flex flex-col h-screen overflow-hidden">
+<!-- TopNavBar (Shared Component JSON Blueprint) -->
+<header class="bg-surface-container-lowest border-b border-outline-variant flex justify-between items-center w-full px-6 h-14 max-w-full z-30 shrink-0">
+<!-- Brand & Left Navigation Links -->
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary font-semibold" data-icon="account_balance">account_balance</span>
+<span class="text-headline-sm font-headline-sm font-bold text-on-surface tracking-tight">Apex Institutional Ledger</span>
+</div>
+<!-- Nav Links -->
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-on-surface-variant hover:text-on-surface py-3 transition-colors text-label-md font-label-md" href="#">Case Queue</a>
+<a class="border-b-2 border-primary text-primary font-semibold py-3 text-label-md font-label-md" href="#">Doc Tracker</a>
+<a class="text-on-surface-variant hover:text-on-surface py-3 transition-colors text-label-md font-label-md" href="#">Chase Engine</a>
+<a class="text-on-surface-variant hover:text-on-surface py-3 transition-colors text-label-md font-label-md" href="#">Audit Trail</a>
+</nav>
+</div>
+<!-- Trailing Actions Cluster -->
+<div class="flex items-center gap-4">
+<div class="hidden lg:flex items-center gap-2 px-2.5 py-1 bg-surface-container-low border border-outline-variant rounded text-label-sm font-label-sm text-on-surface">
+<span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+<span>Sync Status: Live (09:42 EST)</span>
+</div>
+<button class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white border border-primary hover:bg-neutral-800 text-label-sm font-label-sm tracking-wide rounded focus:ring-2 focus:ring-secondary focus:outline-none transition-all" type="button">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+<span>New Client Onboarding</span>
+</button>
+<div class="h-4 w-px bg-outline-variant"></div>
+<!-- Icon Actions -->
+<div class="flex items-center gap-1">
+<button class="p-1.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded transition-colors focus:ring-2 focus:ring-secondary" title="Notifications">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded transition-colors focus:ring-2 focus:ring-secondary" title="Help">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded transition-colors focus:ring-2 focus:ring-secondary" title="Settings">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+<div class="flex items-center gap-2 pl-2 border-l border-outline-variant">
+<img class="w-7 h-7 rounded-full object-cover border border-outline-variant" data-alt="Corporate headshot portrait of senior relationship manager Sarah Jenkins in tailored navy business suit inside contemporary high-rise glass banking office, crisp professional corporate lighting, calm authoritative expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0e0bpG-mJbk75qwNDtQJWLoTMINkY8Rq5zB7hLwEgglQGE2vWM77SgrtQPn0F977mMYCbr36UyjpwH_IYAH1tD5z3EVX6Q42wWifZxFIKuIoyfAzp7jO8aBXdnJq11nnXwDCqvRNJrFqM-I8e-omG5lxuyu4aTebvtcW0FdeMfEhaS6gf5MOOUm1v5ugccxnsmnRr4K02dYIlUK_aBCKZw8qaffbZ3oUv48rZckg"/>
+<span class="text-label-sm font-label-sm text-on-surface font-semibold hidden xl:inline">S. Jenkins (RM-842)</span>
+</div>
+</div>
+</header>
+<!-- Global Workspace Body -->
+<div class="flex flex-1 overflow-hidden relative">
+<!-- SideNavBar (Shared Component Blueprint) -->
+<aside class="hidden lg:flex flex-col justify-between w-64 bg-surface-container-low border-r border-outline-variant py-4 px-3 shrink-0">
+<div>
+<!-- SideNav Header -->
+<div class="flex items-center gap-3 px-2 pb-4 mb-3 border-b border-outline-variant">
+<div class="w-8 h-8 rounded bg-primary-container text-white flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-base" data-icon="account_balance">account_balance</span>
+</div>
+<div class="overflow-hidden">
+<div class="text-headline-sm font-headline-sm font-semibold text-on-surface truncate">Corporate Ledger</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant truncate">Desk ID: RM-NYC-084</div>
+</div>
+</div>
+<!-- Primary Nav Items -->
+<div class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest rounded transition-colors text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="folder_shared">folder_shared</span>
+<span>All Institutional Cases</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-surface-container border-l-2 border-secondary text-primary font-semibold text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined text-secondary" data-icon="verified_user">verified_user</span>
+<span>KYC/AML Review</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest rounded transition-colors text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="schedule_send">schedule_send</span>
+<span>Pending Client Chase</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest rounded transition-colors text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined text-amber-700" data-icon="warning">warning</span>
+<span>Escalations</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest rounded transition-colors text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span>Dispatched Archive</span>
+</a>
+</div>
+<!-- CTA quick chase -->
+<div class="mt-6 px-1">
+<button class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-white border border-outline-variant hover:border-slate-400 text-on-surface rounded text-label-sm font-label-sm font-semibold transition-all" type="button">
+<span class="material-symbols-outlined text-sm" data-icon="bolt">bolt</span>
+<span>Quick Chase (T-3)</span>
+</button>
+</div>
+</div>
+<!-- SideNav Footer -->
+<div class="pt-4 border-t border-outline-variant space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface rounded text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="gavel">gavel</span>
+<span>Compliance Direct</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface rounded text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span>Audit Logs</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col min-w-0 overflow-y-auto custom-scrollbar bg-background">
+<!-- System Notification Banner (Error state / Cached warning banner) -->
+<div class="bg-amber-50 border-b border-amber-200 px-6 py-2 flex items-center justify-between text-body-sm font-body-sm text-amber-900 transition-all" id="sync-banner">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-amber-600 text-lg" data-icon="warning">warning</span>
+<span class="font-medium">Case document system slow/sync failed at 09:15 EST. Showing cached evidence.</span>
+<span class="text-label-sm font-label-sm text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300">FAIL_CODE: RETRY_LIMIT_EXCEEDED</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="text-label-sm font-label-sm font-semibold text-secondary hover:underline flex items-center gap-1 focus:ring-1 focus:ring-secondary" onclick="document.getElementById('sync-banner').classList.add('hidden')">
+<span class="material-symbols-outlined text-xs" data-icon="refresh">refresh</span>
+            [Retry Sync]
+          </button>
+<button class="text-amber-700 hover:text-amber-950" onclick="document.getElementById('sync-banner').classList.add('hidden')">
+<span class="material-symbols-outlined text-sm" data-icon="close">close</span>
+</button>
+</div>
+</div>
+<!-- Closed Case Banner (Toggled via preview switcher below) -->
+<div class="hidden bg-slate-100 border-b border-slate-300 px-6 py-2.5 flex items-center justify-between text-body-sm font-body-sm text-slate-800" id="closed-case-banner">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-slate-700 text-base" data-icon="lock">lock</span>
+<span class="font-semibold tracking-wide">Case Closed &amp; Archived on Oct 24, 2024 - Read Only</span>
+<span class="text-label-sm font-label-sm bg-white border border-slate-300 px-2 py-0.5 rounded text-slate-600">IMMUTABLE_HASH_VAL: 9a7f...d82e</span>
+</div>
+<span class="text-label-sm font-label-sm text-slate-500">All modifications and dispatch capabilities disabled</span>
+</div>
+<!-- Breadcrumbs & Context Header Bar -->
+<div class="bg-surface-container-lowest border-b border-outline-variant px-6 py-4">
+<!-- Breadcrumb / Back Link -->
+<div class="flex items-center justify-between mb-3">
+<div class="flex items-center gap-2">
+<a class="inline-flex items-center gap-1.5 text-label-md font-label-md text-secondary hover:text-on-secondary-container hover:underline font-semibold focus:outline-none focus:ring-2 focus:ring-secondary" href="#">
+<span class="material-symbols-outlined text-base" data-icon="arrow_back">arrow_back</span>
+<span>Back to Case Queue</span>
+</a>
+<span class="text-slate-300">/</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant font-mono">ONBOARDING_LEDGER</span>
+</div>
+<!-- Prototype Mode Switcher (Active vs Closed View Preview) -->
+<div class="flex items-center gap-2 bg-surface-container-low border border-outline-variant p-1 rounded">
+<span class="text-label-sm font-label-sm text-on-surface-variant px-1 font-semibold uppercase">Simulate State:</span>
+<button class="px-2 py-0.5 text-label-sm font-label-sm bg-white border border-outline-variant text-on-surface font-semibold rounded shadow-xs" id="btn-state-active" onclick="switchState('active')">
+              Normal Active Tracker
+            </button>
+<button class="px-2 py-0.5 text-label-sm font-label-sm text-on-surface-variant hover:text-on-surface rounded" id="btn-state-closed" onclick="switchState('closed')">
+              Closed Read-Only
+            </button>
+</div>
+</div>
+<!-- Case Identity Master Strip -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+<div class="space-y-1">
+<div class="flex flex-wrap items-center gap-3">
+<h1 class="text-headline-lg font-headline-lg font-bold text-on-surface tracking-tight">Case CS-9402: Apex Global Logistics LLC</h1>
+<div class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-blue-50 text-secondary border border-secondary/30 rounded text-label-sm font-label-sm font-semibold" id="case-status-badge">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>Active In-Progress</span>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-x-6 gap-y-1 text-body-sm font-body-sm text-on-surface-variant">
+<div><span class="text-slate-400">Client Type:</span> <strong class="text-on-surface font-medium">Corporate Treasury</strong></div>
+<div class="h-3 w-px bg-slate-300 hidden sm:block"></div>
+<div><span class="text-slate-400">RM Assigned:</span> <strong class="text-on-surface font-medium">Sarah Jenkins (RM-842)</strong></div>
+<div class="h-3 w-px bg-slate-300 hidden sm:block"></div>
+<div><span class="text-slate-400">Jurisdiction:</span> <strong class="text-on-surface font-medium">Delaware, USA (DE-LLC-7801)</strong></div>
+<div class="h-3 w-px bg-slate-300 hidden sm:block"></div>
+<div><span class="text-slate-400">Target Go-Live:</span> <span class="font-mono text-on-surface">2024-11-01</span></div>
+</div>
+</div>
+<!-- Primary Case Action Cluster -->
+<div class="flex items-center gap-3 shrink-0">
+<button class="btn-action inline-flex items-center gap-2 px-3 py-2 bg-white text-on-surface border border-outline-variant hover:border-slate-400 text-label-sm font-label-sm font-semibold rounded focus:ring-2 focus:ring-secondary transition-all" type="button">
+<span class="material-symbols-outlined text-base" data-icon="history">history</span>
+<span>Audit Trail (14 entries)</span>
+</button>
+<!-- Draft Chase Email CTA -->
+<button class="btn-action inline-flex items-center gap-2 px-4 py-2 bg-primary text-white border border-primary hover:bg-neutral-800 text-label-sm font-label-sm font-semibold rounded focus:ring-2 focus:ring-secondary transition-all shadow-sm" id="cta-draft-chase" type="button">
+<span class="material-symbols-outlined text-base" data-icon="outgoing_mail">outgoing_mail</span>
+<span>Draft Chase Email</span>
+<span class="ml-1 px-1.5 py-0.2 rounded bg-amber-500 text-white font-mono text-[10px]">1 Missing, 2 Unconfirmed</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Tracker Workspace Grid (Tabular Document Ledger + Collateral Panel) -->
+<div class="p-6 grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+<!-- Left 8 Columns: Document Tracker Checklist -->
+<section class="xl:col-span-8 space-y-4">
+<!-- Filter & Statistics Quick Toolbar -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded p-3 flex flex-wrap items-center justify-between gap-3">
+<div class="flex items-center gap-2">
+<span class="text-label-sm font-label-sm text-slate-500 uppercase font-semibold">Package Completeness:</span>
+<div class="w-36 h-2 bg-slate-100 border border-slate-200 rounded overflow-hidden">
+<div class="bg-emerald-600 h-full w-[40%]"></div>
+</div>
+<span class="font-mono text-label-sm font-label-sm font-bold text-on-surface">2 / 5 Verified (40%)</span>
+</div>
+<div class="flex items-center gap-2 text-label-sm font-label-sm">
+<span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-medium">2 Received</span>
+<span class="px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-medium">2 Unconfirmed</span>
+<span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-300 font-medium">1 Missing</span>
+</div>
+</div>
+<!-- Document Table Container -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded overflow-hidden shadow-xs">
+<div class="px-4 py-3 border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-base" data-icon="checklist">checklist</span>
+<span class="text-headline-sm font-headline-sm font-semibold text-on-surface">Mandatory &amp; Optional Documentation Assessment</span>
+</div>
+<span class="text-label-sm font-label-sm text-slate-500">Tier-1 Regulatory Schema: KYB-CORP-V4</span>
+</div>
+<!-- Table Header -->
+<div class="grid grid-cols-12 gap-3 px-4 py-2.5 bg-slate-50 border-b border-slate-200 text-label-sm font-label-sm text-slate-500 uppercase font-semibold tracking-wider">
+<div class="col-span-5 sm:col-span-6">Requirement Label &amp; Identifiers</div>
+<div class="col-span-3 sm:col-span-2 text-center">Obligation</div>
+<div class="col-span-4 sm:col-span-4 text-right">Verification Status</div>
+</div>
+<!-- List of DocAssessment Rows -->
+<div class="divide-y divide-outline-variant">
+<!-- ROW 1: Certificate of Incorporation (RECEIVED) -->
+<div class="p-4 hover:bg-slate-50/60 transition-colors">
+<div class="grid grid-cols-12 gap-3 items-center">
+<!-- Label & Code -->
+<div class="col-span-5 sm:col-span-6 flex items-start gap-2.5">
+<span class="material-symbols-outlined text-emerald-700 text-lg mt-0.5" data-icon="description">description</span>
+<div>
+<div class="text-body-md font-body-md font-semibold text-on-surface">
+                        Certificate of Incorporation
+                        <span class="font-mono text-label-sm text-slate-500 ml-1 font-normal">[CERT_INCORP]</span>
+</div>
+<div class="text-body-sm font-body-sm text-slate-500">Official stamp of DE Secretary of State with corporate file seal</div>
+</div>
+</div>
+<!-- Obligation Badge: REQUIRED -->
+<div class="col-span-3 sm:col-span-2 flex justify-center">
+<span class="inline-flex items-center px-2 py-0.5 bg-slate-900 text-white rounded text-[10px] font-label-sm uppercase font-semibold tracking-wider">
+                      Required
+                    </span>
+</div>
+<!-- Non-Color-Only Status Badge: RECEIVED -->
+<div class="col-span-4 sm:col-span-4 flex items-center justify-end gap-2">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-300 rounded text-label-sm font-label-sm font-bold">
+<span class="material-symbols-outlined text-sm text-emerald-700" data-icon="check_circle" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>Received</span>
+<span class="material-symbols-outlined text-xs text-emerald-700 ml-0.5" data-icon="lock" data-weight="fill" style="font-variation-settings: 'FILL' 1;" title="Verified and Locked in Vault">lock</span>
+</div>
+</div>
+</div>
+<!-- Detailed Evidence Accordion Strip -->
+<div class="mt-3 ml-7 bg-surface-container-low border border-slate-200 rounded p-2.5 flex flex-wrap items-center justify-between text-body-sm font-body-sm gap-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-500 text-base" data-icon="inventory">inventory</span>
+<span class="font-mono text-label-sm text-slate-600">source: case_system | Ref: 'DOC-88219-VAULT' | Date: 2024-10-14T09:12:00Z</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-label-sm font-label-sm text-emerald-700 font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-xs" data-icon="verified">verified</span> MD5 Verified: 4a21...cb77
+                    </span>
+<button class="btn-action text-secondary text-label-sm font-label-sm hover:underline font-semibold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-xs" data-icon="visibility">visibility</span> View PDF
+                    </button>
+</div>
+</div>
+</div>
+<!-- ROW 2: W-8BEN-E Tax Form (UNCONFIRMED) -->
+<div class="p-4 bg-amber-50/20 hover:bg-amber-50/40 transition-colors border-l-2 border-amber-500">
+<div class="grid grid-cols-12 gap-3 items-center">
+<!-- Label & Code -->
+<div class="col-span-5 sm:col-span-6 flex items-start gap-2.5">
+<span class="material-symbols-outlined text-amber-700 text-lg mt-0.5" data-icon="receipt_long">receipt_long</span>
+<div>
+<div class="text-body-md font-body-md font-semibold text-on-surface">
+                        W-8BEN-E Tax Form
+                        <span class="font-mono text-label-sm text-slate-500 ml-1 font-normal">[W8_BEN_E]</span>
+</div>
+<div class="text-body-sm font-body-sm text-slate-500">Chapter 4 FATCA status declaration signed by CFO/Treasurer</div>
+</div>
+</div>
+<!-- Obligation Badge: REQUIRED -->
+<div class="col-span-3 sm:col-span-2 flex justify-center">
+<span class="inline-flex items-center px-2 py-0.5 bg-slate-900 text-white rounded text-[10px] font-label-sm uppercase font-semibold tracking-wider">
+                      Required
+                    </span>
+</div>
+<!-- Non-Color-Only Status Badge: UNCONFIRMED -->
+<div class="col-span-4 sm:col-span-4 flex items-center justify-end">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 text-amber-900 border border-amber-400 rounded text-label-sm font-label-sm font-bold shadow-xs">
+<span class="material-symbols-outlined text-amber-700 text-sm" data-icon="warning" data-weight="fill" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span>Confirm: client may have sent this</span>
+</div>
+</div>
+</div>
+<!-- Unconfirmed Quick Actions & Detailed Evidence -->
+<div class="mt-3 ml-7 bg-amber-50/70 border border-amber-200 rounded p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-amber-700 text-base" data-icon="mark_email_read">mark_email_read</span>
+<span class="font-mono text-label-sm text-slate-700">source: inbox | Ref: 'FW: Revised W8 &amp; AML Packet' | Date: 2024-10-18T14:22:00Z</span>
+</div>
+<!-- Quick action buttons -->
+<div class="flex items-center gap-2 shrink-0">
+<button class="btn-action inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-700 text-white rounded hover:bg-emerald-800 text-label-sm font-label-sm font-semibold transition-all" type="button">
+<span class="material-symbols-outlined text-xs" data-icon="done">done</span>
+<span>[ Mark received ]</span>
+</button>
+<button class="btn-action inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-slate-300 text-slate-700 rounded hover:bg-slate-100 text-label-sm font-label-sm font-semibold transition-all" type="button">
+<span class="material-symbols-outlined text-xs" data-icon="close">close</span>
+<span>[ Still missing ]</span>
+</button>
+</div>
+</div>
+</div>
+<!-- ROW 3: Audited Financials FY23 (MISSING) -->
+<div class="p-4 hover:bg-slate-50/60 transition-colors">
+<div class="grid grid-cols-12 gap-3 items-center">
+<!-- Label & Code -->
+<div class="col-span-5 sm:col-span-6 flex items-start gap-2.5">
+<span class="material-symbols-outlined text-slate-400 text-lg mt-0.5" data-icon="finance">finance</span>
+<div>
+<div class="text-body-md font-body-md font-semibold text-on-surface">
+                        Audited Financials FY23
+                        <span class="font-mono text-label-sm text-slate-500 ml-1 font-normal">[AUDIT_FIN_23]</span>
+</div>
+<div class="text-body-sm font-body-sm text-slate-500">CPA unqualified auditor opinion with full notes on treasury liabilities</div>
+</div>
+</div>
+<!-- Obligation Badge: REQUIRED -->
+<div class="col-span-3 sm:col-span-2 flex justify-center">
+<span class="inline-flex items-center px-2 py-0.5 bg-slate-900 text-white rounded text-[10px] font-label-sm uppercase font-semibold tracking-wider">
+                      Required
+                    </span>
+</div>
+<!-- Non-Color-Only Status Badge: MISSING -->
+<div class="col-span-4 sm:col-span-4 flex items-center justify-end">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 text-slate-700 border border-slate-300 rounded text-label-sm font-label-sm font-bold">
+<span class="material-symbols-outlined text-slate-500 text-sm" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+<span>Missing</span>
+</div>
+</div>
+</div>
+<!-- Missing item status note -->
+<div class="mt-3 ml-7 bg-slate-50 border border-slate-200 rounded p-2.5 flex items-center justify-between text-body-sm font-body-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-base" data-icon="error_outline">error_outline</span>
+<span class="font-mono text-label-sm text-slate-500">source: system_eval | Zero candidate files discovered in ledger inbox or SFTP folder</span>
+</div>
+<button class="btn-action text-secondary text-label-sm font-label-sm hover:underline font-semibold" type="button">
+                    + Manual Direct Upload
+                  </button>
+</div>
+</div>
+<!-- ROW 4: Authorized Signatory List (UNCONFIRMED) -->
+<div class="p-4 bg-amber-50/20 hover:bg-amber-50/40 transition-colors border-l-2 border-amber-500">
+<div class="grid grid-cols-12 gap-3 items-center">
+<!-- Label & Code -->
+<div class="col-span-5 sm:col-span-6 flex items-start gap-2.5">
+<span class="material-symbols-outlined text-amber-700 text-lg mt-0.5" data-icon="signature">signature</span>
+<div>
+<div class="text-body-md font-body-md font-semibold text-on-surface">
+                        Authorized Signatory List
+                        <span class="font-mono text-label-sm text-slate-500 ml-1 font-normal">[AUTH_SIG_LIST]</span>
+</div>
+<div class="text-body-sm font-body-sm text-slate-500">Board resolution nominating signatories with specimen signature specimen cards</div>
+</div>
+</div>
+<!-- Obligation Badge: REQUIRED -->
+<div class="col-span-3 sm:col-span-2 flex justify-center">
+<span class="inline-flex items-center px-2 py-0.5 bg-slate-900 text-white rounded text-[10px] font-label-sm uppercase font-semibold tracking-wider">
+                      Required
+                    </span>
+</div>
+<!-- Non-Color-Only Status Badge: UNCONFIRMED -->
+<div class="col-span-4 sm:col-span-4 flex items-center justify-end">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 text-amber-900 border border-amber-400 rounded text-label-sm font-label-sm font-bold shadow-xs">
+<span class="material-symbols-outlined text-amber-700 text-sm" data-icon="warning" data-weight="fill" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span>Confirm: client may have sent this</span>
+</div>
+</div>
+</div>
+<!-- Evidence & quick actions -->
+<div class="mt-3 ml-7 bg-amber-50/70 border border-amber-200 rounded p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-amber-700 text-base" data-icon="forward_to_inbox">forward_to_inbox</span>
+<span class="font-mono text-label-sm text-slate-700">source: inbox | Ref: 'FW: Signed Banking Resolutions.pdf' | Date: 2024-10-17T11:04:12Z</span>
+</div>
+<div class="flex items-center gap-2 shrink-0">
+<button class="btn-action inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-700 text-white rounded hover:bg-emerald-800 text-label-sm font-label-sm font-semibold transition-all" type="button">
+<span class="material-symbols-outlined text-xs" data-icon="done">done</span>
+<span>[ Mark received ]</span>
+</button>
+<button class="btn-action inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-slate-300 text-slate-700 rounded hover:bg-slate-100 text-label-sm font-label-sm font-semibold transition-all" type="button">
+<span class="material-symbols-outlined text-xs" data-icon="close">close</span>
+<span>[ Still missing ]</span>
+</button>
+</div>
+</div>
+</div>
+<!-- ROW 5: Ultimate Beneficial Ownership Form [OPTIONAL] -->
+<div class="p-4 hover:bg-slate-50/60 transition-colors opacity-95">
+<div class="grid grid-cols-12 gap-3 items-center">
+<!-- Label & Code -->
+<div class="col-span-5 sm:col-span-6 flex items-start gap-2.5">
+<span class="material-symbols-outlined text-slate-500 text-lg mt-0.5" data-icon="corporate_fare">corporate_fare</span>
+<div>
+<div class="text-body-md font-body-md font-semibold text-on-surface">
+                        Ultimate Beneficial Ownership Form
+                        <span class="font-mono text-label-sm text-slate-500 ml-1 font-normal">[UBO_REG_01]</span>
+</div>
+<div class="text-body-sm font-body-sm text-slate-500">Direct &amp; Indirect owners controlling &gt;25% equity interest</div>
+</div>
+</div>
+<!-- Obligation Badge: OPTIONAL (Visually Subordinate with subtle outline) -->
+<div class="col-span-3 sm:col-span-2 flex justify-center">
+<span class="inline-flex items-center px-2 py-0.5 bg-transparent border border-dashed border-slate-400 text-slate-600 rounded text-[10px] font-label-sm uppercase font-medium tracking-wider">
+                      Optional
+                    </span>
+</div>
+<!-- Non-Color-Only Status Badge: RECEIVED -->
+<div class="col-span-4 sm:col-span-4 flex items-center justify-end">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-300 rounded text-label-sm font-label-sm font-bold">
+<span class="material-symbols-outlined text-sm text-emerald-700" data-icon="check_circle" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>Received</span>
+<span class="material-symbols-outlined text-xs text-emerald-700 ml-0.5" data-icon="lock" data-weight="fill" style="font-variation-settings: 'FILL' 1;" title="Verified by Risk Officer">lock</span>
+</div>
+</div>
+</div>
+<!-- Evidence Strip -->
+<div class="mt-3 ml-7 bg-surface-container-low border border-slate-200 rounded p-2.5 flex items-center justify-between text-body-sm font-body-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-500 text-base" data-icon="task_alt">task_alt</span>
+<span class="font-mono text-label-sm text-slate-600">source: case_system | Ref: 'DOC-87994-VAULT' | Date: 2024-10-12T16:45:00Z</span>
+</div>
+<span class="text-label-sm font-label-sm text-slate-500 font-mono">Attested by J. Vance, Esq.</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Action & Helper Summary -->
+<div class="p-4 bg-slate-50 border border-outline-variant rounded flex items-center justify-between">
+<div class="flex items-center gap-2 text-body-sm font-body-sm text-slate-600">
+<span class="material-symbols-outlined text-base text-secondary" data-icon="info">info</span>
+<span>All unconfirmed items require relationship manager sign-off prior to dispatching Phase-2 credit facility agreements.</span>
+</div>
+<button class="btn-action text-label-sm font-label-sm font-semibold text-secondary hover:underline">
+              Download Audit Package (.ZIP)
+            </button>
+</div>
+</section>
+<!-- Right 4 Columns: Collateral Chase Composer & Evidence Inspector -->
+<aside class="xl:col-span-4 space-y-4">
+<!-- Chase Dispatch Orchestrator Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded shadow-xs overflow-hidden">
+<div class="px-4 py-3 bg-surface-container-low border-b border-outline-variant flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-base" data-icon="outgoing_mail">outgoing_mail</span>
+<span class="text-headline-sm font-headline-sm font-semibold text-on-surface">Client Chase Generator</span>
+</div>
+<span class="text-label-sm font-label-sm font-mono text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">AUTO-RESOLVE ON</span>
+</div>
+<div class="p-4 space-y-3.5">
+<!-- Dispatch Context Info -->
+<div class="space-y-1.5 pb-3 border-b border-outline-variant text-body-sm font-body-sm">
+<div class="flex justify-between">
+<span class="text-slate-500">Recipient:</span>
+<span class="font-mono text-on-surface font-medium">cfo@apexlogistics.com</span>
+</div>
+<div class="flex justify-between">
+<span class="text-slate-500">CC Entity:</span>
+<span class="font-mono text-on-surface">treasury-onboard@tier1bank.com</span>
+</div>
+<div class="flex justify-between">
+<span class="text-slate-500">Cadence Policy:</span>
+<span class="font-mono text-on-surface">Standard Corporate (T-7, T-3, T-0)</span>
+</div>
+</div>
+<!-- Unresolved Documents Payload Checklist -->
+<div>
+<label class="block text-label-sm font-label-sm text-slate-500 uppercase font-semibold mb-2">Chasing Payload Items (3)</label>
+<div class="space-y-1.5">
+<div class="flex items-center justify-between p-2 rounded bg-amber-50 border border-amber-200 text-body-sm font-body-sm">
+<span class="text-amber-900 font-medium truncate">W-8BEN-E Tax Form</span>
+<span class="text-label-sm font-label-sm font-bold text-amber-800 bg-amber-100 px-1.5 py-0.2 rounded shrink-0">Unconfirmed</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded bg-slate-100 border border-slate-300 text-body-sm font-body-sm">
+<span class="text-slate-800 font-medium truncate">Audited Financials FY23</span>
+<span class="text-label-sm font-label-sm font-bold text-slate-700 bg-slate-200 px-1.5 py-0.2 rounded shrink-0">Missing</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded bg-amber-50 border border-amber-200 text-body-sm font-body-sm">
+<span class="text-amber-900 font-medium truncate">Authorized Signatory List</span>
+<span class="text-label-sm font-label-sm font-bold text-amber-800 bg-amber-100 px-1.5 py-0.2 rounded shrink-0">Unconfirmed</span>
+</div>
+</div>
+</div>
+<!-- Email Subject Line Input -->
+<div>
+<label class="block text-label-sm font-label-sm text-slate-500 uppercase font-semibold mb-1">Subject Preview</label>
+<input class="w-full bg-slate-50 border border-slate-300 text-body-sm font-body-sm text-slate-700 rounded p-2 font-mono focus:ring-1 focus:ring-secondary focus:outline-none" readonly="" type="text" value="[URGENT] Document Update Required: Apex Global Logistics LLC (CS-9402)"/>
+</div>
+<!-- Message Template Editor/Preview -->
+<div>
+<label class="block text-label-sm font-label-sm text-slate-500 uppercase font-semibold mb-1">Formatted Chase Body</label>
+<textarea class="w-full bg-slate-50 border border-slate-300 text-body-sm font-body-sm text-slate-800 rounded p-2.5 font-mono text-xs leading-relaxed focus:ring-1 focus:ring-secondary focus:outline-none" readonly="" rows="5">Dear Apex Treasury Team,
+
+Our compliance review indicates 1 missing required filing and 2 documents requiring formal re-affirmation for Case CS-9402:
+
+• [AUDIT_FIN_23] Audited Financials FY23 (Missing)
+• [W8_BEN_E] W-8BEN-E Tax Form (Pending Confirmation)
+• [AUTH_SIG_LIST] Authorized Signatory List (Pending Confirmation)
+
+Please access the encrypted client portal using your keycard token:
+https://portal.tier1bank.com/ledger/CS-9402/vault
+
+Sincerely,
+Sarah Jenkins | RM-842 | Tier-1 Institutional Banking</textarea>
+</div>
+<!-- Action buttons -->
+<div class="pt-2 flex flex-col gap-2">
+<button class="btn-action w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-primary text-white border border-primary hover:bg-neutral-800 rounded text-label-sm font-label-sm font-bold tracking-wide transition-all shadow-sm focus:ring-2 focus:ring-secondary" type="button">
+<span class="material-symbols-outlined text-base" data-icon="send">send</span>
+<span>Transmit Official Notice Now</span>
+</button>
+<div class="flex items-center gap-2">
+<button class="btn-action flex-1 py-1.5 text-label-sm font-label-sm text-slate-700 bg-white border border-outline-variant hover:bg-slate-50 rounded" type="button">
+                    Schedule for 09:00 EST
+                  </button>
+<button class="btn-action flex-1 py-1.5 text-label-sm font-label-sm text-slate-700 bg-white border border-outline-variant hover:bg-slate-50 rounded" type="button">
+                    Copy Portal Link
+                  </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Vault Integrity & Audit Log Sub-pane -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded p-4 space-y-3">
+<div class="flex items-center justify-between border-b border-outline-variant pb-2">
+<span class="text-label-sm font-label-sm font-semibold uppercase text-slate-600">Audit Trail Snippet</span>
+<span class="text-label-sm font-label-sm font-mono text-slate-400">LEDGER-TX-4409</span>
+</div>
+<div class="space-y-2 text-label-sm font-label-sm font-mono text-slate-600">
+<div class="border-l-2 border-emerald-500 pl-2 py-0.5">
+<div class="text-on-surface font-semibold">2024-10-18 14:22 UTC</div>
+<div class="text-slate-500 truncate">Email ingress webhook matched 'FW: Revised W8'</div>
+</div>
+<div class="border-l-2 border-secondary pl-2 py-0.5">
+<div class="text-on-surface font-semibold">2024-10-17 11:04 UTC</div>
+<div class="text-slate-500 truncate">Signatory resolution uploaded via secure token</div>
+</div>
+<div class="border-l-2 border-slate-300 pl-2 py-0.5">
+<div class="text-on-surface font-semibold">2024-10-14 09:12 UTC</div>
+<div class="text-slate-500 truncate">Cert of Incorp verified by KYC Officer S. Jenkins</div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+</div>
+<!-- Interactive State Switching Script (Active vs Closed Read-Only) -->
+<script>
+    function switchState(state) {
+      const closedBanner = document.getElementById('closed-case-banner');
+      const caseBadge = document.getElementById('case-status-badge');
+      const chaseCTA = document.getElementById('cta-draft-chase');
+      const actionButtons = document.querySelectorAll('.btn-action');
+      const btnActive = document.getElementById('btn-state-active');
+      const btnClosed = document.getElementById('btn-state-closed');
+
+      if (state === 'closed') {
+        // Show Closed Banner
+        closedBanner.classList.remove('hidden');
+        
+        // Update Case Status Badge
+        caseBadge.className = "inline-flex items-center gap-1.5 px-2 py-0.5 bg-slate-200 text-slate-700 border border-slate-400 rounded text-label-sm font-label-sm font-semibold";
+        caseBadge.innerHTML = `<span class="material-symbols-outlined text-xs">lock</span><span>Closed &amp; Archived (Read-Only)</span>`;
+
+        // Disable all interactive action buttons
+        actionButtons.forEach(btn => {
+          btn.setAttribute('disabled', 'true');
+          btn.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+        });
+
+        // Switch toolbar buttons style
+        btnClosed.className = "px-2 py-0.5 text-label-sm font-label-sm bg-white border border-outline-variant text-on-surface font-semibold rounded shadow-xs";
+        btnActive.className = "px-2 py-0.5 text-label-sm font-label-sm text-on-surface-variant hover:text-on-surface rounded";
+      } else {
+        // Hide Closed Banner
+        closedBanner.classList.add('hidden');
+
+        // Reset Case Status Badge
+        caseBadge.className = "inline-flex items-center gap-1.5 px-2 py-0.5 bg-blue-50 text-secondary border border-secondary/30 rounded text-label-sm font-label-sm font-semibold";
+        caseBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span><span>Active In-Progress</span>`;
+
+        // Enable all interactive action buttons
+        actionButtons.forEach(btn => {
+          btn.removeAttribute('disabled');
+          btn.classList.remove('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+        });
+
+        // Switch toolbar buttons style
+        btnActive.className = "px-2 py-0.5 text-label-sm font-label-sm bg-white border border-outline-variant text-on-surface font-semibold rounded shadow-xs";
+        btnClosed.className = "px-2 py-0.5 text-label-sm font-label-sm text-on-surface-variant hover:text-on-surface rounded";
+      }
+    }
+  </script>
+</body></html>

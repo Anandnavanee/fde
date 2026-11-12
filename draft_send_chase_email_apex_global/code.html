@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Apex Institutional Ledger - Chase Engine [CS-9402]</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Fonts: Hanken Grotesk & JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-secondary-fixed": "#001d31",
+            "surface-container": "#e5eeff",
+            "surface-container-lowest": "#ffffff",
+            "error": "#ba1a1a",
+            "on-primary-fixed": "#131b2e",
+            "error-container": "#ffdad6",
+            "tertiary-fixed-dim": "#62df7d",
+            "tertiary": "#000000",
+            "on-tertiary-fixed": "#002109",
+            "inverse-surface": "#213145",
+            "on-error-container": "#93000a",
+            "primary-fixed": "#dae2fd",
+            "primary-container": "#131b2e",
+            "on-surface": "#0b1c30",
+            "on-error": "#ffffff",
+            "tertiary-container": "#002109",
+            "surface-dim": "#cbdbf5",
+            "surface-variant": "#d3e4fe",
+            "primary-fixed-dim": "#bec6e0",
+            "on-secondary-container": "#00476e",
+            "tertiary-fixed": "#7ffc97",
+            "surface-tint": "#565e74",
+            "inverse-on-surface": "#eaf1ff",
+            "surface-container-high": "#dce9ff",
+            "on-secondary-fixed-variant": "#004b73",
+            "on-primary-fixed-variant": "#3f465c",
+            "surface-container-low": "#eff4ff",
+            "inverse-primary": "#bec6e0",
+            "secondary-container": "#5bb8fe",
+            "background": "#f8f9ff",
+            "on-background": "#0b1c30",
+            "on-surface-variant": "#45464d",
+            "on-secondary": "#ffffff",
+            "secondary-fixed-dim": "#93ccff",
+            "surface-container-highest": "#d3e4fe",
+            "outline": "#76777d",
+            "outline-variant": "#c6c6cd",
+            "on-primary-container": "#7c839b",
+            "secondary-fixed": "#cce5ff",
+            "surface-bright": "#f8f9ff",
+            "primary": "#000000",
+            "secondary": "#006398",
+            "on-tertiary-container": "#009842",
+            "surface": "#f8f9ff",
+            "on-tertiary": "#ffffff",
+            "on-primary": "#ffffff",
+            "on-tertiary-fixed-variant": "#005320"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-lg": "1rem",
+            "space-sm": "0.5rem",
+            "margin": "1rem",
+            "space-xs": "0.25rem",
+            "space-md": "0.75rem",
+            "margin-desktop": "2rem",
+            "space-xl": "1.5rem",
+            "gutter": "1rem",
+            "gutter-desktop": "1.5rem"
+          },
+          "fontFamily": {
+            "label-md": ["JetBrains Mono"],
+            "body-md": ["Hanken Grotesk"],
+            "headline-sm": ["Hanken Grotesk"],
+            "body-sm": ["Hanken Grotesk"],
+            "label-sm": ["JetBrains Mono"],
+            "body-lg": ["Hanken Grotesk"],
+            "headline-xl": ["Hanken Grotesk"],
+            "headline-lg": ["Hanken Grotesk"]
+          },
+          "fontSize": {
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+            "body-md": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "headline-sm": ["18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+            "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "500" }],
+            "body-lg": ["15px", { "lineHeight": "22px", "fontWeight": "400" }],
+            "headline-xl": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      font-size: 18px;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    /* Custom subtle scrollbar for institutional look */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f8fafc;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 2px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface antialiased font-body-md min-h-screen flex flex-col selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+<!-- TOP APP BAR (Shared Component Anchor) -->
+<header class="docked full-width top-0 bg-surface-container-lowest border-b border-outline-variant flat no shadows z-30 sticky">
+<div class="flex justify-between items-center w-full px-6 h-14 max-w-full">
+<!-- Brand & Search cluster -->
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 bg-primary text-on-primary flex items-center justify-center rounded">
+<span class="material-symbols-outlined text-[16px]">account_balance</span>
+</div>
+<span class="text-headline-sm font-headline-sm font-bold text-on-surface tracking-tight">Apex Institutional Ledger</span>
+</div>
+<!-- Search bar (on left as specified) -->
+<div class="relative w-72">
+<span class="absolute inset-y-0 left-0 flex items-center pl-2.5 pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[16px]">search</span>
+</span>
+<input class="w-full pl-8 pr-3 py-1.5 text-body-sm font-body-sm bg-surface-container-lowest border border-outline-variant rounded focus:ring-2 focus:ring-secondary focus:outline-none transition-all duration-150 text-on-surface placeholder:text-outline" placeholder="Search entity, LEI, case ID..." type="text" value="CS-9402"/>
+</div>
+<!-- Global navigation links -->
+<nav class="hidden lg:flex items-center gap-6 text-label-md font-label-md">
+<a class="text-on-surface-variant hover:text-on-surface py-3 transition-colors" href="#">Case Queue</a>
+<a class="text-on-surface-variant hover:text-on-surface py-3 transition-colors" href="#">Doc Tracker</a>
+<a class="border-b-2 border-primary text-primary font-semibold py-3" href="#">Chase Engine</a>
+<a class="text-on-surface-variant hover:text-on-surface py-3 transition-colors" href="#">Audit Trail</a>
+</nav>
+</div>
+<!-- Trailing Status and Actions -->
+<div class="flex items-center gap-4">
+<div class="hidden sm:flex items-center gap-2 px-2.5 py-1 bg-surface-container-low rounded border border-outline-variant">
+<span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Sync Status: Live (09:42 EST)</span>
+</div>
+<button class="hidden sm:flex items-center gap-1.5 bg-primary text-on-primary px-3 py-1.5 rounded text-label-md font-label-md hover:bg-inverse-surface transition-colors focus:ring-2 focus:ring-secondary focus:outline-none" type="button">
+<span class="material-symbols-outlined text-[16px]">add_circle</span>
+<span>New Client Onboarding</span>
+</button>
+<div class="flex items-center gap-1 border-l border-outline-variant pl-3">
+<button class="p-1.5 text-on-surface-variant hover:bg-surface-container-low rounded transition-colors focus:ring-2 focus:ring-secondary focus:outline-none" title="Notifications">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:bg-surface-container-low rounded transition-colors focus:ring-2 focus:ring-secondary focus:outline-none" title="Help">
+<span class="material-symbols-outlined">help</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:bg-surface-container-low rounded transition-colors focus:ring-2 focus:ring-secondary focus:outline-none" title="Settings">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<div class="flex items-center gap-2 pl-2 border-l border-outline-variant">
+<img alt="RM Officer Headshot Portrait" class="w-7 h-7 rounded object-cover border border-outline-variant" data-alt="Professional corporate headshot portrait of a Tier-1 senior commercial banking relationship manager wearing a sharp navy tailored suit with clean neutral studio lighting in a modern financial institution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxBgsVoxWwNOnmf9E86nIE956awJD8nxuY8-VZ-gefhsfm2zXcpfpeaqIsqZrvBNes0Du6WGIEOyC1ruvUQg5po39nThg2_yskxuDbrbKXjmBz4zGV7z12LfWTg3SQ-onr-PZAo63rf0hvx7qW6VUMaeLED9zj_RIR2-bHqqZBS73wM2ahe2G2f9OaLngyIcfXaizpRlVqVTNWdIJNP37g6tqe6rM0RN0DD97QMtA"/>
+<span class="hidden xl:inline text-label-sm font-label-sm text-on-surface font-semibold">M. Vance (RM-NYC)</span>
+</div>
+</div>
+</div>
+</header>
+<!-- MAIN OPERATIONAL VIEWPORT (Split-Pane Master / Detail Layout) -->
+<div class="flex-1 flex overflow-hidden">
+<!-- SIDE NAV BAR (Shared Component Anchor) -->
+<aside class="docked left-0 top-14 h-[calc(100vh-3.5rem)] w-64 bg-surface-container-low border-r border-outline-variant flat no shadows hidden md:flex flex-col justify-between shrink-0">
+<div class="py-4 px-3 flex flex-col gap-4">
+<!-- Desk Emblem Header -->
+<div class="px-2 pb-3 border-b border-outline-variant flex items-center gap-3">
+<div class="w-9 h-9 bg-surface-container-lowest border border-outline-variant rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary">corporate_fare</span>
+</div>
+<div>
+<div class="text-headline-sm font-headline-sm font-semibold text-on-surface leading-tight">Corporate Ledger</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant">Desk ID: RM-NYC-084</div>
+</div>
+</div>
+<!-- Navigation Tabs (5 Tabs) -->
+<div class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest rounded transition-colors text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined">folder_shared</span>
+<span>All Institutional Cases</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest rounded transition-colors text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined">verified_user</span>
+<span>KYC/AML Review</span>
+</a>
+<!-- Active Tab: Pending Client Chase -->
+<a class="flex items-center gap-3 px-3 py-2 bg-surface-container border-l-2 border-secondary text-primary font-semibold rounded-r transition-colors text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined text-secondary">schedule_send</span>
+<span>Pending Client Chase</span>
+<span class="ml-auto text-label-sm bg-secondary text-on-secondary px-1.5 py-0.5 rounded font-mono">1</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest rounded transition-colors text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined">warning</span>
+<span>Escalations</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest rounded transition-colors text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span>Dispatched Archive</span>
+</a>
+</div>
+<!-- Quick Chase Trigger CTA -->
+<div class="mt-2 px-1">
+<button class="w-full flex items-center justify-center gap-2 py-2 px-3 bg-surface-container-high border border-outline-variant hover:bg-surface-container text-on-surface rounded text-label-md font-label-md transition-colors focus-visible:ring-2 focus-visible:ring-secondary" type="button">
+<span class="material-symbols-outlined text-[16px]">bolt</span>
+<span>Quick Chase (T-3)</span>
+</button>
+</div>
+</div>
+<!-- Footer Tab Labels -->
+<div class="py-4 px-3 border-t border-outline-variant flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest rounded text-label-md font-label-md transition-colors" href="#">
+<span class="material-symbols-outlined">gavel</span>
+<span>Compliance Direct</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest rounded text-label-md font-label-md transition-colors" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span>Audit Logs</span>
+</a>
+<div class="mt-2 pt-2 border-t border-outline-variant px-3 text-[11px] text-outline font-label-sm">
+          SEC Rule 17a-4 Compliant Session
+        </div>
+</div>
+</aside>
+<!-- WORKSPACE CANVAS: Split Screen Engine -->
+<main class="flex-1 flex flex-col xl:flex-row overflow-hidden bg-background">
+<!-- LEFT SUB-PANE: Case Dossier & Held-Back Guardrails -->
+<section class="flex-1 flex flex-col border-r border-outline-variant overflow-y-auto">
+<!-- Breadcrumb & Case Meta Bar -->
+<div class="px-6 py-3.5 bg-surface-container-lowest border-b border-outline-variant flex flex-wrap items-center justify-between gap-3">
+<div class="flex items-center gap-3">
+<a class="text-secondary flex items-center gap-1 text-label-sm font-label-sm hover:underline" href="#">
+<span class="material-symbols-outlined text-[14px]">arrow_back</span>
+<span>Back to Desk Queue</span>
+</a>
+<span class="text-outline-variant">/</span>
+<span class="text-label-sm font-label-sm font-semibold text-on-surface bg-surface-container px-2 py-0.5 rounded">CASE: CS-9402</span>
+<span class="text-label-sm font-label-sm text-outline">Tier-1 Commercial Logistics Onboarding</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-label-sm font-label-sm text-on-surface-variant">Entity Jurisdiction:</span>
+<span class="text-label-sm font-label-sm font-bold text-on-surface">Delaware, USA (DE-77192)</span>
+</div>
+</div>
+<!-- Entity Identity Card -->
+<div class="p-6 bg-surface-container-lowest border-b border-outline-variant">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="space-y-1">
+<div class="flex items-center gap-2.5">
+<h1 class="text-headline-lg font-headline-lg font-bold text-on-surface tracking-tight">Apex Global Logistics LLC</h1>
+<span class="px-2 py-0.5 rounded text-[10px] font-label-sm uppercase font-semibold bg-emerald-50 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>Active Pipeline
+                </span>
+<span class="px-2 py-0.5 rounded text-[10px] font-label-sm uppercase font-semibold bg-amber-50 text-amber-800 border border-amber-300">
+                  T-3 Chase Pending
+                </span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+                Entity Legal Structure: Multi-Member Corporate LLC • Target Facility: $45,000,000 Working Capital Revolver • Primary RM: Marcus Vance (VP NYC)
+              </p>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<div class="text-right">
+<div class="text-[11px] font-label-sm text-outline">KYC Officer on Record</div>
+<div class="text-label-sm font-label-sm font-semibold text-on-surface">Elena Rostova (AML Level III)</div>
+</div>
+<div class="w-9 h-9 rounded bg-surface-container border border-outline-variant flex items-center justify-center font-label-md text-secondary font-bold">
+                ER
+              </div>
+</div>
+</div>
+<!-- Document Code Chips Section (Prominent requested items) -->
+<div class="mt-5 pt-4 border-t border-outline-variant">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[16px]">priority_high</span>
+<span class="text-label-md font-label-md font-semibold text-on-surface uppercase tracking-wide">Target Chase Documents (2 Items Requiring Client Dispatch):</span>
+</div>
+<span class="text-label-sm font-label-sm text-outline">Target Deadline: 28 Oct 2024 (17:00 EST)</span>
+</div>
+<div class="flex flex-wrap gap-2.5">
+<!-- Chip 1 -->
+<div class="flex items-center gap-2 px-3 py-1.5 bg-red-50 border border-red-200 rounded text-error">
+<span class="material-symbols-outlined text-[16px]">pending_actions</span>
+<span class="text-label-md font-label-md font-bold font-mono">[ AUTH_SIG_LIST ]</span>
+<span class="text-body-sm font-body-sm text-on-surface font-medium">Authorized Signatory List with Signature Specimens</span>
+<span class="ml-1 text-[10px] font-label-sm px-1.5 py-0.5 bg-red-100 text-error rounded font-semibold uppercase">Missing</span>
+</div>
+<!-- Chip 2 -->
+<div class="flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded text-amber-900">
+<span class="material-symbols-outlined text-[16px]">sync_problem</span>
+<span class="text-label-md font-label-md font-bold font-mono">[ AUDIT_FIN_23 ]</span>
+<span class="text-body-sm font-body-sm text-on-surface font-medium">Audited Financial Statements FY2023 (Certified CPA)</span>
+<span class="ml-1 text-[10px] font-label-sm px-1.5 py-0.5 bg-amber-100 text-amber-900 rounded font-semibold uppercase">Expired/Clarify</span>
+</div>
+</div>
+</div>
+</div>
+<!-- HELD BACK DOCUMENTS AUDIT SECTION (Zero-Duplicate Guarantee) -->
+<div class="p-6 bg-surface-bright flex-1">
+<div class="flex items-center justify-between pb-3 border-b border-outline-variant mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-emerald-700 text-[18px]">verified</span>
+<h2 class="text-label-md font-label-md font-bold uppercase tracking-wider text-on-surface">
+                Held Back Documents Ledger (Zero-Duplicate Guarantee)
+              </h2>
+</div>
+<span class="text-label-sm font-label-sm text-outline">
+              System Audit Filter: 3 documents excluded from automated chase request
+            </span>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded overflow-hidden shadow-sm">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 border-b border-outline-variant h-9">
+<th class="px-4 text-label-sm font-label-sm text-slate-500 uppercase w-28">Doc Code</th>
+<th class="px-4 text-label-sm font-label-sm text-slate-500 uppercase">Requirement Name</th>
+<th class="px-4 text-label-sm font-label-sm text-slate-500 uppercase">Audit Exclusion Reason</th>
+<th class="px-4 text-label-sm font-label-sm text-slate-500 uppercase w-32 text-right">Verification Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant text-body-sm font-body-sm">
+<!-- Item 1: Received -->
+<tr class="hover:bg-slate-50/80 transition-colors">
+<td class="px-4 py-3 font-mono text-label-sm font-semibold text-slate-700">CERT_INCORP</td>
+<td class="px-4 py-3 font-medium text-on-surface">Certificate of Incorporation &amp; Good Standing</td>
+<td class="px-4 py-3 text-slate-600">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px] text-emerald-600">cloud_done</span>
+<span>Received in Case System (<span class="font-mono text-[11px] font-semibold text-slate-800">Ref: DOC-88219-VAULT</span>)</span>
+</div>
+</td>
+<td class="px-4 py-3 text-right">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[10px] font-label-sm font-semibold uppercase bg-emerald-50 text-emerald-800 border border-emerald-200">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Received
+                    </span>
+</td>
+</tr>
+<!-- Item 2: Unconfirmed / Inbox Match -->
+<tr class="hover:bg-slate-50/80 transition-colors">
+<td class="px-4 py-3 font-mono text-label-sm font-semibold text-slate-700">TAX_W8BENE</td>
+<td class="px-4 py-3 font-medium text-on-surface">W-8BEN-E Entity Tax Classification Form</td>
+<td class="px-4 py-3 text-slate-600">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px] text-amber-600">mark_email_unread</span>
+<span>Client correspondence to confirm (<span class="font-mono text-[11px] font-semibold text-slate-800">Inbox ref: FW: Revised W8</span>)</span>
+</div>
+</td>
+<td class="px-4 py-3 text-right">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[10px] font-label-sm font-semibold uppercase bg-amber-50 text-amber-800 border border-amber-200">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Unconfirmed
+                    </span>
+</td>
+</tr>
+<!-- Item 3: Optional Exemption -->
+<tr class="hover:bg-slate-50/80 transition-colors">
+<td class="px-4 py-3 font-mono text-label-sm font-semibold text-slate-700">UBO_SCHED_B</td>
+<td class="px-4 py-3 font-medium text-on-surface">UBO Form Schedule B (Indirect Controlling Entities)</td>
+<td class="px-4 py-3 text-slate-600">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px] text-slate-400">do_not_disturb_on</span>
+<span>Optional document — threshold &lt; 25% ownership attested</span>
+</div>
+</td>
+<td class="px-4 py-3 text-right">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[10px] font-label-sm font-semibold uppercase bg-slate-100 text-slate-700 border border-slate-300">
+<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Excluded
+                    </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Compliance Policy Micro-note -->
+<div class="mt-3 flex items-start gap-2 text-label-sm font-label-sm text-outline">
+<span class="material-symbols-outlined text-[14px] mt-0.5">policy</span>
+<span>Bank Policy 84-B: Automated chase triggers will suppress any document bearing a verified vault ingestion token within the prior 14 banking days.</span>
+</div>
+</div>
+</section>
+<!-- RIGHT SUB-PANE: DRAFT AND SEND CHASE EMAIL PANEL -->
+<section class="w-full xl:w-[620px] 2xl:w-[680px] flex flex-col bg-surface-container-lowest shrink-0 border-l border-outline-variant overflow-y-auto">
+<!-- Panel Header -->
+<div class="px-6 py-3.5 bg-surface-container-low border-b border-outline-variant flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">mail</span>
+<div>
+<h2 class="text-headline-sm font-headline-sm font-semibold text-on-surface">Outbound Chase Dispatcher</h2>
+<span class="text-label-sm font-label-sm text-outline">Protocol: Institutional Secure Direct Relay</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-[11px] font-label-sm text-secondary bg-surface-container px-2 py-0.5 rounded font-mono font-semibold">CADENCE: T-3 REMINDER</span>
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded" title="Full Screen View">
+<span class="material-symbols-outlined text-[18px]">open_in_full</span>
+</button>
+</div>
+</div>
+<!-- Chase Dispatcher Form Body -->
+<div class="p-6 flex flex-col gap-5 flex-1">
+<!-- BLOCKING REVIEW CALLOUT (rmReviewNotes) -->
+<div class="p-4 bg-red-50 border-2 border-red-300 rounded shadow-sm transition-all duration-200" id="blockingCallout">
+<div class="flex items-start gap-3">
+<div class="w-7 h-7 rounded bg-red-100 border border-red-300 flex items-center justify-center shrink-0 text-error">
+<span class="material-symbols-outlined text-[20px]">warning</span>
+</div>
+<div class="flex-1 space-y-2">
+<div class="flex items-center justify-between">
+<span class="text-label-md font-label-md font-bold text-red-900 uppercase tracking-tight">
+                    Blocking Review Items (1 unresolved note):
+                  </span>
+<span class="px-2 py-0.2 bg-red-200 text-error text-[10px] font-label-sm uppercase font-bold rounded">
+                    Hard Gate
+                  </span>
+</div>
+<p class="text-body-sm font-body-sm text-red-950 font-medium leading-relaxed bg-surface-container-lowest/80 p-2.5 rounded border border-red-200 font-mono">
+                  • Note 1: "Client sent unencrypted signatory list on Oct 19 via personal email — verify signature authenticity against passport scan prior to chase dispatch."
+                </p>
+<!-- Checkbox / Action: [ Resolve & Acknowledge Note ] -->
+<div class="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-red-200">
+<label class="flex items-center gap-2.5 cursor-pointer group select-none">
+<input class="w-4 h-4 rounded border-red-400 text-secondary focus:ring-2 focus:ring-secondary focus:ring-offset-1 transition-all" id="resolveCheckbox" type="checkbox"/>
+<span class="text-label-md font-label-md font-bold text-red-900 group-hover:text-red-950 transition-colors" id="checkboxLabel">
+                      [ Resolve &amp; Acknowledge Note ]
+                    </span>
+</label>
+<span class="text-[11px] font-label-sm text-red-700 italic">
+                    Officer Sign-off required
+                  </span>
+</div>
+<div class="text-[11px] font-label-sm font-semibold text-red-800 flex items-center gap-1.5 pt-1" id="lockWarningText">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+<span>Send button is locked and disabled until all RM review notes are resolved.</span>
+</div>
+</div>
+</div>
+</div>
+<!-- EMAIL HEADER FORM -->
+<div class="space-y-3.5 bg-surface-container-lowest border border-outline-variant p-4 rounded">
+<!-- TO: FIELD -->
+<div class="space-y-1">
+<div class="flex items-center justify-between">
+<label class="text-label-md font-label-md font-semibold text-on-surface" for="emailTo">To Recipient(s):</label>
+<span class="text-label-sm font-label-sm text-outline">Corporate Entity Officers</span>
+</div>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[16px]">alternate_email</span>
+</div>
+<input class="w-full pl-9 pr-3 py-2 text-body-md font-body-md bg-surface-container-lowest border border-outline-variant rounded focus:border-secondary focus:ring-2 focus:ring-secondary/20 focus:outline-none transition-all text-on-surface" id="emailTo" type="text" value="cfo.office@apexlogisticscorp.com; treasury-ops@apexlogisticscorp.com"/>
+</div>
+</div>
+<!-- CC: FIELD (Standard institutional practice) -->
+<div class="space-y-1">
+<div class="flex items-center justify-between">
+<label class="text-label-md font-label-md font-semibold text-on-surface" for="emailCc">CC / Compliance Archive:</label>
+<span class="text-label-sm font-label-sm text-outline">Audit Archiving Node</span>
+</div>
+<input class="w-full px-3 py-1.5 text-body-sm font-body-sm bg-surface-container-low border border-outline-variant rounded text-on-surface-variant font-mono focus:outline-none" id="emailCc" readonly="" type="text" value="rm.vance@apexbank.com; institutional.onboarding.audit@apexbank.com"/>
+</div>
+<!-- SUBJECT: FIELD -->
+<div class="space-y-1">
+<label class="text-label-md font-label-md font-semibold text-on-surface" for="emailSubject">Subject Line:</label>
+<input class="w-full px-3 py-2 text-body-md font-body-md bg-surface-container-lowest border border-outline-variant rounded focus:border-secondary focus:ring-2 focus:ring-secondary/20 focus:outline-none transition-all font-semibold text-on-surface" id="emailSubject" type="text" value="ACTION REQUIRED: Outstanding Onboarding Documentation - Apex Global Logistics LLC [Case CS-9402]"/>
+</div>
+<!-- EDITABLE EMAIL BODY -->
+<div class="space-y-1 pt-1">
+<div class="flex items-center justify-between">
+<label class="text-label-md font-label-md font-semibold text-on-surface" for="emailBody">Email Draft Body (Bank Standard):</label>
+<span class="text-label-sm font-label-sm text-secondary hover:underline cursor-pointer">Revert to Master Template</span>
+</div>
+<div class="border border-outline-variant rounded overflow-hidden focus-within:border-secondary focus-within:ring-2 focus-within:ring-secondary/20 transition-all">
+<!-- Rich-text minimal toolbar -->
+<div class="bg-surface-container-low border-b border-outline-variant px-3 py-1.5 flex items-center gap-2 text-outline">
+<button class="p-1 hover:text-on-surface rounded hover:bg-surface-container" type="button"><span class="material-symbols-outlined text-[16px]">format_bold</span></button>
+<button class="p-1 hover:text-on-surface rounded hover:bg-surface-container" type="button"><span class="material-symbols-outlined text-[16px]">format_italic</span></button>
+<button class="p-1 hover:text-on-surface rounded hover:bg-surface-container" type="button"><span class="material-symbols-outlined text-[16px]">format_list_bulleted</span></button>
+<span class="h-3 w-[1px] bg-outline-variant mx-1"></span>
+<button class="p-1 hover:text-on-surface rounded hover:bg-surface-container" type="button"><span class="material-symbols-outlined text-[16px]">link</span></button>
+<button class="p-1 hover:text-on-surface rounded hover:bg-surface-container" type="button"><span class="material-symbols-outlined text-[16px]">lock_reset</span></button>
+<span class="ml-auto text-[11px] font-label-sm text-outline">Auto-Filtered: Missing Items Only</span>
+</div>
+<textarea class="w-full p-3 text-body-md font-body-md text-on-surface bg-surface-container-lowest border-0 focus:ring-0 focus:outline-none resize-none font-sans leading-relaxed" id="emailBody" rows="9">Dear Treasury Team at Apex Global Logistics,
+
+We hope this correspondence finds you well. 
+
+In connection with our ongoing onboarding review for Apex Global Logistics LLC (Case Ref: CS-9402), our Institutional Compliance Committee has verified and safely archived your Certificate of Incorporation and relevant formation filings. We appreciate your prompt submission of those materials.
+
+To finalize account provisioning and unlock access to the $45,000,000 credit facility, the following required onboarding documents remain outstanding and require your formal submission:
+
+1. [AUTH_SIG_LIST] Authorized Signatory List: Must be signed by two Managing Members accompanied by attested specimen signatures. (Please utilize our encrypted upload link rather than standard email attachments).
+2. [AUDIT_FIN_23] Audited Financial Statements FY2023: Fully executed copy certified by an independent certified public accountant (CPA).
+
+Please upload these pending deliverables directly via your dedicated bank upload node:
+https://institutional.apexbank.com/secure-portal/upload/auth-cs9402?token=e29a-88f1
+
+If you require any clarification regarding these specifications, please do not hesitate to contact our desk directly at +1 (212) 555-0198.
+
+Sincerely,
+
+Marcus Vance
+Relationship Manager | Commercial Banking Desk RM-NYC-084
+Apex Institutional Ledger Banking Group</textarea>
+</div>
+</div>
+<!-- Upload Link Token Verification Badge -->
+<div class="flex items-center justify-between px-3 py-2 bg-slate-50 border border-outline-variant rounded">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[16px]">shield_with_heart</span>
+<span class="text-label-sm font-label-sm text-slate-700">One-Time Secure Upload Token: <span class="font-mono font-bold text-slate-900">#TK-CS9402-EXP72H</span></span>
+</div>
+<span class="text-label-sm font-label-sm text-emerald-700 font-semibold">Valid (72h Expiry)</span>
+</div>
+</div>
+<!-- SUCCESS DISPATCH NOTIFICATION BANNER (State C) -->
+<div class="hidden p-4 bg-emerald-50 border border-emerald-300 rounded shadow-sm transition-all duration-300" id="sentSuccessBanner">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-emerald-700 text-[22px]">mark_email_read</span>
+<div>
+<div class="text-label-md font-label-md font-bold text-emerald-900">
+                  Chase Email Successfully Dispatched
+                </div>
+<div class="text-body-sm font-body-sm text-emerald-800 mt-1">
+                  Dispatched to <span class="font-semibold font-mono">cfo.office@apexlogisticscorp.com</span> at <span class="font-mono font-semibold" id="dispatchTimestamp">2024-10-24 10:14:08 EST</span>.
+                </div>
+<div class="text-label-sm font-label-sm text-emerald-700 mt-1.5 font-mono">
+                  Immutable Audit ref #TX-99201 recorded in Desk Ledger.
+                </div>
+</div>
+</div>
+</div>
+</div>
+<!-- SENDBAR ACTIONS (Sticky Bottom Footer) -->
+<div class="p-6 bg-surface-container-low border-t border-outline-variant mt-auto">
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-2 text-label-sm font-label-sm text-outline">
+<span class="material-symbols-outlined text-[16px]">history_edu</span>
+<span>Draft auto-saved 1 min ago</span>
+</div>
+<div class="flex items-center gap-3 w-full sm:w-auto">
+<!-- Save Draft (Secondary Neutral Button) -->
+<button class="w-1/2 sm:w-auto px-4 py-2 bg-surface-container-lowest hover:bg-surface-container-low text-on-surface border border-outline-variant hover:border-outline rounded text-label-md font-label-md transition-colors focus:ring-2 focus:ring-secondary focus:outline-none" id="saveDraftBtn" type="button">
+                [ Save Draft ]
+              </button>
+<!-- Send Chase Email (Primary Button with lock toggle) -->
+<div class="relative w-1/2 sm:w-auto" id="sendBtnWrapper">
+<!-- Tooltip for Disabled State A -->
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap bg-inverse-surface text-inverse-on-surface text-[11px] font-label-sm px-2.5 py-1 rounded shadow-lg pointer-events-none opacity-100 transition-opacity" id="sendTooltip">
+                  Disabled: Resolve blocking review note above
+                  <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-inverse-surface"></div>
+</div>
+<!-- STATE A: Disabled Button -->
+<!-- STATE B: Active Button -->
+<button class="w-full sm:w-auto px-5 py-2 rounded text-label-md font-label-md flex items-center justify-center gap-2 transition-all duration-150 cursor-not-allowed bg-slate-300 text-slate-500 border border-slate-300" disabled="" id="sendChaseBtn" type="button">
+<span class="material-symbols-outlined text-[16px]" id="sendLockIcon">lock</span>
+<span id="sendBtnText">[ Send Chase Email ]</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+<!-- INLINE CLIENT INTERACTION LOGIC (STATE MANAGEMENT FOR CHASE PANEL) -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const resolveCheckbox = document.getElementById('resolveCheckbox');
+      const sendChaseBtn = document.getElementById('sendChaseBtn');
+      const sendTooltip = document.getElementById('sendTooltip');
+      const sendLockIcon = document.getElementById('sendLockIcon');
+      const blockingCallout = document.getElementById('blockingCallout');
+      const lockWarningText = document.getElementById('lockWarningText');
+      const checkboxLabel = document.getElementById('checkboxLabel');
+      const sentSuccessBanner = document.getElementById('sentSuccessBanner');
+      const dispatchTimestamp = document.getElementById('dispatchTimestamp');
+      const saveDraftBtn = document.getElementById('saveDraftBtn');
+
+      // State Transition from State A (Locked) to State B (Active)
+      resolveCheckbox.addEventListener('change', (e) => {
+        if (e.target.checked) {
+          // Unblock State
+          sendChaseBtn.disabled = false;
+          sendChaseBtn.classList.remove('bg-slate-300', 'text-slate-500', 'border-slate-300', 'cursor-not-allowed');
+          sendChaseBtn.classList.add('bg-primary', 'text-on-primary', 'border-primary', 'hover:bg-inverse-surface', 'cursor-pointer', 'shadow');
+          
+          sendLockIcon.textContent = 'send';
+          sendTooltip.classList.add('opacity-0', 'pointer-events-none');
+          
+          // Callout feedback
+          blockingCallout.classList.remove('bg-red-50', 'border-red-300');
+          blockingCallout.classList.add('bg-emerald-50', 'border-emerald-300');
+          checkboxLabel.classList.remove('text-red-900');
+          checkboxLabel.classList.add('text-emerald-900');
+          checkboxLabel.textContent = '[ Note Resolved: Verified Authenticity on File ]';
+          lockWarningText.innerHTML = '<span class="material-symbols-outlined text-[14px] text-emerald-700">check_circle</span> <span class="text-emerald-800 font-semibold">Review note verified by RM-NYC-084. Dispatch gate unlocked.</span>';
+        } else {
+          // Re-lock State A
+          sendChaseBtn.disabled = true;
+          sendChaseBtn.classList.add('bg-slate-300', 'text-slate-500', 'border-slate-300', 'cursor-not-allowed');
+          sendChaseBtn.classList.remove('bg-primary', 'text-on-primary', 'border-primary', 'hover:bg-inverse-surface', 'cursor-pointer', 'shadow');
+          
+          sendLockIcon.textContent = 'lock';
+          sendTooltip.classList.remove('opacity-0', 'pointer-events-none');
+
+          blockingCallout.classList.add('bg-red-50', 'border-red-300');
+          blockingCallout.classList.remove('bg-emerald-50', 'border-emerald-300');
+          checkboxLabel.classList.add('text-red-900');
+          checkboxLabel.classList.remove('text-emerald-900');
+          checkboxLabel.textContent = '[ Resolve & Acknowledge Note ]';
+          lockWarningText.innerHTML = '<span class="material-symbols-outlined text-[14px]">lock</span> <span>Send button is locked and disabled until all RM review notes are resolved.</span>';
+        }
+      });
+
+      // Dispatch State C (Sent confirmation banner)
+      sendChaseBtn.addEventListener('click', () => {
+        if (!sendChaseBtn.disabled) {
+          // Generate precise EST timestamp
+          const now = new Date();
+          const yr = now.getFullYear();
+          const mo = String(now.getMonth() + 1).padStart(2, '0');
+          const da = String(now.getDate()).padStart(2, '0');
+          const hr = String(now.getHours()).padStart(2, '0');
+          const mi = String(now.getMinutes()).padStart(2, '0');
+          const sc = String(now.getSeconds()).padStart(2, '0');
+          dispatchTimestamp.textContent = `${yr}-${mo}-${da} ${hr}:${mi}:${sc} EST`;
+
+          // Display State C banner
+          sentSuccessBanner.classList.remove('hidden');
+          sentSuccessBanner.scrollIntoView({ behavior: 'smooth' });
+
+          // Disable button to prevent double dispatch
+          sendChaseBtn.disabled = true;
+          sendChaseBtn.classList.remove('bg-primary', 'hover:bg-inverse-surface');
+          sendChaseBtn.classList.add('bg-slate-200', 'text-slate-400', 'border-slate-300', 'cursor-not-allowed');
+          sendChaseBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">done_all</span><span>[ Dispatched & Audited ]</span>';
+        }
+      });
+
+      // Save Draft feedback
+      saveDraftBtn.addEventListener('click', () => {
+        const originalText = saveDraftBtn.textContent;
+        saveDraftBtn.textContent = 'Saved to Ledger Vault';
+        saveDraftBtn.classList.add('bg-surface-container', 'text-secondary');
+        setTimeout(() => {
+          saveDraftBtn.textContent = originalText;
+          saveDraftBtn.classList.remove('bg-surface-container', 'text-secondary');
+        }, 1800);
+      });
+    });
+  </script>
+</body></html>

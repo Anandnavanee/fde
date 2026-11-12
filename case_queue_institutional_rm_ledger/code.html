@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Apex Institutional Ledger - Case Queue</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-secondary-fixed": "#001d31",
+            "surface-container": "#e5eeff",
+            "surface-container-lowest": "#ffffff",
+            "error": "#ba1a1a",
+            "on-primary-fixed": "#131b2e",
+            "error-container": "#ffdad6",
+            "tertiary-fixed-dim": "#62df7d",
+            "tertiary": "#000000",
+            "on-tertiary-fixed": "#002109",
+            "inverse-surface": "#213145",
+            "on-error-container": "#93000a",
+            "primary-fixed": "#dae2fd",
+            "primary-container": "#131b2e",
+            "on-surface": "#0b1c30",
+            "on-error": "#ffffff",
+            "tertiary-container": "#002109",
+            "surface-dim": "#cbdbf5",
+            "surface-variant": "#d3e4fe",
+            "primary-fixed-dim": "#bec6e0",
+            "on-secondary-container": "#00476e",
+            "tertiary-fixed": "#7ffc97",
+            "surface-tint": "#565e74",
+            "inverse-on-surface": "#eaf1ff",
+            "surface-container-high": "#dce9ff",
+            "on-secondary-fixed-variant": "#004b73",
+            "on-primary-fixed-variant": "#3f465c",
+            "surface-container-low": "#eff4ff",
+            "inverse-primary": "#bec6e0",
+            "secondary-container": "#5bb8fe",
+            "background": "#f8f9ff",
+            "on-background": "#0b1c30",
+            "on-surface-variant": "#45464d",
+            "on-secondary": "#ffffff",
+            "secondary-fixed-dim": "#93ccff",
+            "surface-container-highest": "#d3e4fe",
+            "outline": "#76777d",
+            "outline-variant": "#c6c6cd",
+            "on-primary-container": "#7c839b",
+            "secondary-fixed": "#cce5ff",
+            "surface-bright": "#f8f9ff",
+            "primary": "#000000",
+            "secondary": "#006398",
+            "on-tertiary-container": "#009842",
+            "surface": "#f8f9ff",
+            "on-tertiary": "#ffffff",
+            "on-primary": "#ffffff",
+            "on-tertiary-fixed-variant": "#005320"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-lg": "1rem",
+            "space-sm": "0.5rem",
+            "margin": "1rem",
+            "space-xs": "0.25rem",
+            "space-md": "0.75rem",
+            "margin-desktop": "2rem",
+            "space-xl": "1.5rem",
+            "gutter": "1rem",
+            "gutter-desktop": "1.5rem"
+          },
+          "fontFamily": {
+            "label-md": ["JetBrains Mono", "monospace"],
+            "body-md": ["Hanken Grotesk", "sans-serif"],
+            "headline-sm": ["Hanken Grotesk", "sans-serif"],
+            "body-sm": ["Hanken Grotesk", "sans-serif"],
+            "label-sm": ["JetBrains Mono", "monospace"],
+            "body-lg": ["Hanken Grotesk", "sans-serif"],
+            "headline-xl": ["Hanken Grotesk", "sans-serif"],
+            "headline-lg": ["Hanken Grotesk", "sans-serif"]
+          },
+          "fontSize": {
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+            "body-md": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "headline-sm": ["18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+            "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "500" }],
+            "body-lg": ["15px", { "lineHeight": "22px", "fontWeight": "400" }],
+            "headline-xl": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }]
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      font-size: 16px;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .focus-ring {
+      transition: box-shadow 0.15s ease-in-out;
+    }
+    .focus-ring:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #006398;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface antialiased font-body-md text-body-md min-h-screen flex flex-col selection:bg-surface-container-high selection:text-primary">
+<!-- TOP APP BAR (from Shared Component JSON) -->
+<header class="bg-surface-container-lowest border-b border-outline-variant flex justify-between items-center w-full px-6 h-14 max-w-full sticky top-0 z-40">
+<!-- Brand Anchor & Search / Institutional Context -->
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3">
+<div class="w-7 h-7 bg-primary flex items-center justify-center rounded">
+<span class="material-symbols-outlined text-on-primary text-base font-bold" data-icon="account_balance">account_balance</span>
+</div>
+<div class="flex flex-col">
+<span class="text-headline-sm font-headline-sm font-bold text-on-surface tracking-tight">Apex Institutional Ledger</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant leading-none">RM Onboarding Document Chase Engine | Desk ID: RM-NYC-084</span>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav aria-label="Main Navigation" class="hidden md:flex items-center gap-6 ml-4">
+<!-- Active: Case Queue (Matches active intent) -->
+<a class="border-b-2 border-primary text-primary font-semibold py-3 text-label-md font-label-md flex items-center gap-1.5 focus-ring" href="#case-queue">
+<span class="material-symbols-outlined text-sm" data-icon="folder_shared">folder_shared</span>
+          Case Queue
+        </a>
+<a class="text-on-surface-variant hover:text-on-surface py-3 transition-colors text-label-md font-label-md flex items-center gap-1.5 focus-ring" href="#doc-tracker">
+          Doc Tracker
+        </a>
+<a class="text-on-surface-variant hover:text-on-surface py-3 transition-colors text-label-md font-label-md flex items-center gap-1.5 focus-ring" href="#chase-engine">
+          Chase Engine
+        </a>
+<a class="text-on-surface-variant hover:text-on-surface py-3 transition-colors text-label-md font-label-md flex items-center gap-1.5 focus-ring" href="#audit-trail">
+          Audit Trail
+        </a>
+</nav>
+</div>
+<!-- Trailing Actions Cluster -->
+<div class="flex items-center gap-3">
+<!-- Sync Status & Manual Trigger -->
+<div class="flex items-center gap-2 bg-surface-container-low border border-outline-variant px-2.5 py-1 rounded">
+<span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+<span class="text-label-sm font-label-sm text-on-surface">Sync Status: Live (09:42 EST)</span>
+<button class="text-secondary hover:text-primary p-0.5 focus-ring rounded" id="manual-sync-btn" onclick="simulateSync()" title="Trigger Instant Re-sync">
+<span class="material-symbols-outlined text-sm" data-icon="sync">sync</span>
+</button>
+</div>
+<button class="bg-primary text-on-primary text-label-md font-label-md px-3 py-1.5 rounded flex items-center gap-1.5 hover:bg-inverse-surface transition-colors focus-ring">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+        New Client Onboarding
+      </button>
+<!-- Action icons -->
+<div class="flex items-center border-l border-outline-variant pl-3 gap-1">
+<button class="p-1.5 text-on-surface-variant hover:text-on-surface rounded hover:bg-surface-container-low transition-colors focus-ring" title="Notifications">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:text-on-surface rounded hover:bg-surface-container-low transition-colors focus-ring" title="Help / Regulation Codex">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:text-on-surface rounded hover:bg-surface-container-low transition-colors focus-ring" title="Settings">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+<!-- Officer Profile -->
+<div class="flex items-center gap-2 pl-2 border-l border-outline-variant">
+<div class="w-7 h-7 rounded border border-outline-variant bg-surface-container flex items-center justify-center text-label-sm font-label-sm font-bold text-secondary">
+          SJ
+        </div>
+<div class="hidden lg:flex flex-col text-left">
+<span class="text-label-sm font-label-sm font-semibold leading-tight text-on-surface">Sarah Jenkins</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">RM-842</span>
+</div>
+</div>
+</div>
+</header>
+<!-- BODY WRAPPER: SideNavBar + Main Content Canvas -->
+<div class="flex flex-1 overflow-hidden relative">
+<!-- SIDE NAV BAR (from Shared Component JSON) -->
+<aside class="hidden lg:flex flex-col justify-between w-64 bg-surface-container-low border-r border-outline-variant shrink-0 py-4 px-3 select-none">
+<div class="flex flex-col gap-4">
+<!-- Desk Header Badge -->
+<div class="px-3 py-2 bg-surface-container-lowest border border-outline-variant rounded">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="shield">shield</span>
+<div>
+<div class="text-label-md font-label-md font-semibold text-on-surface">Corporate Ledger</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant">Desk ID: RM-NYC-084</div>
+</div>
+</div>
+</div>
+<!-- Primary Desk Navigation -->
+<div class="flex flex-col gap-1">
+<!-- Active Tab: All Institutional Cases -->
+<a class="flex items-center gap-3 px-3 py-2 bg-surface-container border-l-2 border-secondary text-primary font-semibold text-label-md font-label-md rounded-r focus-ring" href="#">
+<span class="material-symbols-outlined" data-icon="folder_shared">folder_shared</span>
+<span class="flex-1">All Institutional Cases</span>
+<span class="text-label-sm font-label-sm px-1.5 py-0.5 bg-surface-container-lowest text-primary rounded font-mono border border-outline-variant">14</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest transition-colors text-label-md font-label-md rounded focus-ring" href="#">
+<span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+<span class="flex-1">KYC/AML Review</span>
+<span class="text-label-sm font-label-sm px-1.5 py-0.5 bg-surface-container text-secondary rounded font-mono">4</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest transition-colors text-label-md font-label-md rounded focus-ring" href="#">
+<span class="material-symbols-outlined" data-icon="schedule_send">schedule_send</span>
+<span class="flex-1">Pending Client Chase</span>
+<span class="text-label-sm font-label-sm px-1.5 py-0.5 bg-surface-container text-amber-700 rounded font-mono">3</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest transition-colors text-label-md font-label-md rounded focus-ring" href="#">
+<span class="material-symbols-outlined" data-icon="warning">warning</span>
+<span class="flex-1">Escalations</span>
+<span class="text-label-sm font-label-sm px-1.5 py-0.5 bg-error-container text-error rounded font-mono">1</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest transition-colors text-label-md font-label-md rounded focus-ring" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span>Dispatched Archive</span>
+</a>
+</div>
+<!-- Quick Chase Context CTA -->
+<div class="mt-2 pt-3 border-t border-outline-variant">
+<button class="w-full text-left px-3 py-2 bg-surface-container hover:bg-surface-container-high transition-colors rounded border border-outline-variant text-label-md font-label-md font-semibold text-secondary flex items-center justify-between focus-ring">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="bolt">bolt</span>
+              Quick Chase (T-3)
+            </span>
+<span class="material-symbols-outlined text-xs" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Footer Tabs (Compliance & Audit) -->
+<div class="border-t border-outline-variant pt-3 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-1.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest rounded transition-colors text-label-md font-label-md focus-ring" href="#">
+<span class="material-symbols-outlined" data-icon="gavel">gavel</span>
+<span>Compliance Direct</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-1.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest rounded transition-colors text-label-md font-label-md focus-ring" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span>Audit Logs</span>
+</a>
+</div>
+</aside>
+<!-- MAIN OPERATING CANVAS -->
+<main class="flex-1 flex flex-col min-w-0 overflow-y-auto bg-surface-bright">
+<!-- SYSTEM CACHE / ERROR BANNER (State preview demonstration) -->
+<div class="hidden bg-amber-50 border-b border-amber-200 px-6 py-2 flex items-center justify-between transition-all" id="system-error-banner">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-amber-700 text-base" data-icon="cloud_off">cloud_off</span>
+<span class="text-body-sm font-body-sm text-amber-900 font-medium">
+            Case system unavailable — showing cached data as of <strong>08:15:22 EST</strong>.
+          </span>
+</div>
+<div class="flex items-center gap-3">
+<button class="bg-surface-container-lowest border border-amber-300 text-amber-900 text-label-sm font-label-sm font-semibold px-2.5 py-1 rounded hover:bg-amber-100 flex items-center gap-1 focus-ring" onclick="retrySync()">
+<span class="material-symbols-outlined text-xs" data-icon="refresh">refresh</span>
+            Retry Connection
+          </button>
+<button class="text-amber-700 hover:text-amber-900 p-0.5 rounded focus-ring" onclick="dismissErrorBanner()" title="Dismiss preview banner">
+<span class="material-symbols-outlined text-sm" data-icon="close">close</span>
+</button>
+</div>
+</div>
+<!-- METRICS STRIP -->
+<div class="bg-surface-container-lowest border-b border-outline-variant px-6 py-3">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<!-- Total Cases -->
+<div class="flex flex-col border-l-2 border-primary pl-3 py-0.5">
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Total Active Cases</span>
+<div class="flex items-baseline gap-2 mt-0.5">
+<span class="text-headline-sm font-headline-sm font-bold text-on-surface font-mono">14</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant font-mono">100% Desk Capacity</span>
+</div>
+</div>
+<!-- Needs Review (Urgent Tabular Sort Trigger) -->
+<div class="flex flex-col border-l-2 border-amber-500 pl-3 py-0.5 bg-amber-50/50 -my-1 py-1.5 rounded-r">
+<span class="text-label-sm font-label-sm text-amber-800 uppercase tracking-wider font-semibold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+              Needs Review
+            </span>
+<div class="flex items-baseline gap-2 mt-0.5">
+<span class="text-headline-sm font-headline-sm font-bold text-amber-900 font-mono">4</span>
+<span class="text-label-sm font-label-sm text-amber-700 font-mono">Unconfirmed Items</span>
+</div>
+</div>
+<!-- Pending Chase -->
+<div class="flex flex-col border-l-2 border-secondary pl-3 py-0.5">
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Pending Client Chase</span>
+<div class="flex items-baseline gap-2 mt-0.5">
+<span class="text-headline-sm font-headline-sm font-bold text-secondary font-mono">3</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant font-mono">T-3 / T-7 Auto Queue</span>
+</div>
+</div>
+<!-- Closed / Completed -->
+<div class="flex flex-col border-l-2 border-outline-variant pl-3 py-0.5">
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Closed (Archived)</span>
+<div class="flex items-baseline gap-2 mt-0.5">
+<span class="text-headline-sm font-headline-sm font-bold text-on-surface-variant font-mono">28</span>
+<span class="text-label-sm font-label-sm text-emerald-700 font-mono flex items-center gap-0.5">
+<span class="material-symbols-outlined text-xs" data-icon="check_circle">check_circle</span>
+                Audit Verified
+              </span>
+</div>
+</div>
+</div>
+</div>
+<!-- FILTER, SEARCH & STATE PREVIEW CONTROL BAR -->
+<div class="bg-surface-container-lowest border-b border-outline-variant px-6 py-3 flex flex-col gap-3">
+<!-- Upper Row: Search & Filters -->
+<div class="flex flex-wrap items-center justify-between gap-3">
+<div class="flex items-center gap-3 flex-1 min-w-[320px]">
+<!-- Search Bar -->
+<div class="relative flex-1 max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-on-surface-variant text-base" data-icon="search">search</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded pl-9 pr-3 py-1.5 text-body-md font-body-md text-on-surface placeholder:text-outline focus-ring" id="search-input" oninput="handleSearch(this.value)" placeholder="Filter by Client Name or Case ID (e.g. CS-9402, Apex Global)..." type="text"/>
+</div>
+<!-- RM Selector Dropdown -->
+<div class="relative">
+<select class="bg-surface-container-lowest border border-outline-variant rounded px-3 py-1.5 text-label-md font-label-md text-on-surface appearance-none pr-8 focus-ring cursor-pointer">
+<option selected="" value="rm-842">RM: Sarah Jenkins (RM-842)</option>
+<option value="all">All Desk RMs (RM-NYC-084)</option>
+<option value="rm-102">RM: Marcus Vance (RM-102)</option>
+<option value="rm-309">RM: Elena Rostova (RM-309)</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-2.5 pointer-events-none text-on-surface-variant text-sm" data-icon="unfold_more">unfold_more</span>
+</div>
+<!-- Needs Review Toggle Filter -->
+<button aria-pressed="true" class="flex items-center gap-1.5 px-3 py-1.5 rounded border border-amber-300 bg-amber-50 text-amber-900 text-label-md font-label-md font-semibold focus-ring transition-colors shadow-sm" id="needs-review-toggle" onclick="toggleNeedsReviewFilter()">
+<span class="material-symbols-outlined text-sm text-amber-700" data-icon="filter_alt">filter_alt</span>
+<span>Needs Review Filter: <strong class="underline decoration-amber-500">Active</strong></span>
+<span class="w-1.5 h-1.5 rounded-full bg-amber-600 ml-1"></span>
+</button>
+</div>
+<!-- Quick Action Buttons -->
+<div class="flex items-center gap-2">
+<button class="border border-outline-variant bg-surface-container-lowest hover:bg-surface-container-low px-3 py-1.5 rounded text-label-md font-label-md text-on-surface flex items-center gap-1.5 focus-ring" title="Export Ledger to SEC/FINRA format">
+<span class="material-symbols-outlined text-sm" data-icon="file_download">file_download</span>
+              Export (.CSV)
+            </button>
+<button class="border border-outline-variant bg-surface-container-lowest hover:bg-surface-container-low px-2 py-1.5 rounded text-on-surface-variant hover:text-on-surface focus-ring" title="Customize Column Alignment">
+<span class="material-symbols-outlined text-base" data-icon="view_column">view_column</span>
+</button>
+</div>
+</div>
+<!-- Lower Row: State Selector Pills (Demo Harness for Requested UI States) -->
+<div class="flex items-center justify-between pt-2 border-t border-outline-variant/60">
+<div class="flex items-center gap-2">
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider font-semibold mr-1">Preview UI States:</span>
+<button class="px-2.5 py-1 text-label-sm font-label-sm rounded font-medium border border-primary bg-primary text-on-primary focus-ring" id="state-pill-active" onclick="switchState('active')">
+              Active Live Queue
+            </button>
+<button class="px-2.5 py-1 text-label-sm font-label-sm rounded font-medium border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low focus-ring" id="state-pill-loading" onclick="switchState('loading')">
+              Loading Skeleton
+            </button>
+<button class="px-2.5 py-1 text-label-sm font-label-sm rounded font-medium border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low focus-ring" id="state-pill-empty" onclick="switchState('empty')">
+              Empty State
+            </button>
+<button class="px-2.5 py-1 text-label-sm font-label-sm rounded font-medium border border-outline-variant bg-surface-container-lowest text-amber-800 hover:bg-amber-50 focus-ring" id="state-pill-error" onclick="switchState('error')">
+              System Error (08:15 EST)
+            </button>
+</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant font-mono">
+            Sorted by: <span class="text-on-surface font-semibold">Priority / Unconfirmed Docs Top</span>
+</div>
+</div>
+</div>
+<!-- MAIN DATA TABLE CONTAINER -->
+<div class="flex-1 p-6">
+<div class="bg-surface-container-lowest border border-outline-variant rounded shadow-sm overflow-hidden flex flex-col">
+<!-- TABLE VIEWPORT -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse" id="cases-table">
+<!-- Tabular Header -->
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant h-9 text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider select-none">
+<th class="w-10 px-4 text-center" scope="col">
+<input aria-label="Select all corporate cases" class="rounded border-outline text-secondary focus-ring w-3.5 h-3.5 cursor-pointer" type="checkbox"/>
+</th>
+<th class="px-4 font-semibold w-28 font-mono" scope="col">Case ID</th>
+<th class="px-4 font-semibold min-w-[220px]" scope="col">Client Legal Entity</th>
+<th class="px-4 font-semibold w-48" scope="col">Institutional Type</th>
+<th class="px-4 font-semibold w-36" scope="col">RM Assigned</th>
+<th class="px-4 font-semibold min-w-[280px]" scope="col">Document Ledger Status</th>
+<th class="px-4 font-semibold w-32 font-mono" scope="col">Last Activity</th>
+<th class="px-4 text-right font-semibold w-28" scope="col">Action</th>
+</tr>
+</thead>
+<!-- TABLE BODY: Live State -->
+<tbody class="divide-y divide-outline-variant text-body-md font-body-md" id="queue-body">
+<!-- ROW 1: Apex Global Logistics LLC (NEEDS REVIEW - UNCONFIRMED) -->
+<tr class="hover:bg-surface-container-low transition-colors group cursor-pointer bg-amber-50/20" onclick="handleRowSelect('CS-9402')">
+<td class="px-4 text-center" onclick="event.stopPropagation()">
+<input aria-label="Select case CS-9402" class="rounded border-outline text-secondary focus-ring w-3.5 h-3.5" type="checkbox"/>
+</td>
+<td class="px-4 font-label-md font-label-md font-mono font-bold text-on-surface">
+<span class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500" title="Unconfirmed docs require review"></span>
+                      CS-9402
+                    </span>
+</td>
+<td class="px-4 font-medium text-on-surface">
+<div class="flex items-center gap-2">
+<span>Apex Global Logistics LLC</span>
+<span class="text-label-sm font-label-sm px-1.5 py-0.2 bg-surface-container text-on-surface-variant rounded border border-outline-variant font-mono">DEL-CORP</span>
+</div>
+</td>
+<td class="px-4 text-body-sm text-on-surface-variant">Corporate Treasury</td>
+<td class="px-4 text-body-sm font-medium text-on-surface">
+<span class="flex items-center gap-1.5">
+<span class="w-5 h-5 rounded bg-surface-container text-secondary text-label-sm font-label-sm flex items-center justify-center font-bold">SJ</span>
+                      Sarah Jenkins
+                    </span>
+</td>
+<td class="px-4 py-2">
+<!-- ProgressBadge Compound with explicit badges & counts -->
+<div class="flex items-center gap-1.5 flex-wrap">
+<!-- Received Badge -->
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-label-sm font-label-sm font-mono bg-emerald-50 text-emerald-800 border border-emerald-200" title="8 Documents Received &amp; Verified">
+<span class="material-symbols-outlined text-xs text-emerald-600" data-icon="check_circle">check_circle</span>
+                        8 Received
+                      </span>
+<!-- Unconfirmed Badge -->
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-label-sm font-label-sm font-mono bg-amber-100 text-amber-900 border border-amber-300 font-semibold" title="2 Documents require confirmation or AML review">
+<span class="material-symbols-outlined text-xs text-amber-700" data-icon="warning">warning</span>
+                        2 Unconfirmed
+                      </span>
+<!-- Missing Badge -->
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-label-sm font-label-sm font-mono bg-slate-100 text-slate-700 border border-slate-300" title="1 Document Pending Client Submission">
+<span class="material-symbols-outlined text-xs text-slate-400" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+                        1 Missing
+                      </span>
+</div>
+</td>
+<td class="px-4 text-label-sm font-label-sm font-mono text-on-surface-variant">
+                    12m ago
+                  </td>
+<td class="px-4 text-right" onclick="event.stopPropagation()">
+<a class="inline-flex items-center gap-1 px-2.5 py-1 text-label-md font-label-md font-semibold text-secondary hover:text-primary hover:bg-surface-container rounded border border-transparent hover:border-outline-variant transition-all focus-ring" href="#open-case-cs-9402">
+                      Open Case
+                      <span class="material-symbols-outlined text-xs" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</td>
+</tr>
+<!-- ROW 2: Meridian Sovereign Wealth (NEEDS REVIEW - UNCONFIRMED) -->
+<tr class="hover:bg-surface-container-low transition-colors group cursor-pointer bg-amber-50/20" onclick="handleRowSelect('CS-8821')">
+<td class="px-4 text-center" onclick="event.stopPropagation()">
+<input aria-label="Select case CS-8821" class="rounded border-outline text-secondary focus-ring w-3.5 h-3.5" type="checkbox"/>
+</td>
+<td class="px-4 font-label-md font-label-md font-mono font-bold text-on-surface">
+<span class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500" title="Unconfirmed docs require review"></span>
+                      CS-8821
+                    </span>
+</td>
+<td class="px-4 font-medium text-on-surface">
+<div class="flex items-center gap-2">
+<span>Meridian Sovereign Wealth Fund</span>
+<span class="text-label-sm font-label-sm px-1.5 py-0.2 bg-secondary-fixed text-on-secondary-fixed rounded border border-secondary-fixed-dim font-mono">SOV-01</span>
+</div>
+</td>
+<td class="px-4 text-body-sm text-on-surface-variant">Institutional Asset Mgr</td>
+<td class="px-4 text-body-sm font-medium text-on-surface">
+<span class="flex items-center gap-1.5">
+<span class="w-5 h-5 rounded bg-surface-container text-secondary text-label-sm font-label-sm flex items-center justify-center font-bold">SJ</span>
+                      Sarah Jenkins
+                    </span>
+</td>
+<td class="px-4 py-2">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-label-sm font-label-sm font-mono bg-emerald-50 text-emerald-800 border border-emerald-200">
+<span class="material-symbols-outlined text-xs text-emerald-600" data-icon="check_circle">check_circle</span>
+                        14 Received
+                      </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-label-sm font-label-sm font-mono bg-amber-100 text-amber-900 border border-amber-300 font-semibold">
+<span class="material-symbols-outlined text-xs text-amber-700" data-icon="warning">warning</span>
+                        1 Unconfirmed
+                      </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-label-sm font-label-sm font-mono bg-slate-100 text-slate-700 border border-slate-300">
+<span class="material-symbols-outlined text-xs text-slate-400" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+                        2 Missing
+                      </span>
+</div>
+</td>
+<td class="px-4 text-label-sm font-label-sm font-mono text-on-surface-variant">
+                    45m ago
+                  </td>
+<td class="px-4 text-right" onclick="event.stopPropagation()">
+<a class="inline-flex items-center gap-1 px-2.5 py-1 text-label-md font-label-md font-semibold text-secondary hover:text-primary hover:bg-surface-container rounded border border-transparent hover:border-outline-variant transition-all focus-ring" href="#open-case-cs-8821">
+                      Open Case
+                      <span class="material-symbols-outlined text-xs" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</td>
+</tr>
+<!-- ROW 3: BlueCrest Capital Management (NEEDS REVIEW) -->
+<tr class="hover:bg-surface-container-low transition-colors group cursor-pointer bg-amber-50/20" onclick="handleRowSelect('CS-8104')">
+<td class="px-4 text-center" onclick="event.stopPropagation()">
+<input aria-label="Select case CS-8104" class="rounded border-outline text-secondary focus-ring w-3.5 h-3.5" type="checkbox"/>
+</td>
+<td class="px-4 font-label-md font-label-md font-mono font-bold text-on-surface">
+<span class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                      CS-8104
+                    </span>
+</td>
+<td class="px-4 font-medium text-on-surface">
+<div class="flex items-center gap-2">
+<span>BlueCrest Capital QIF PLC</span>
+<span class="text-label-sm font-label-sm px-1.5 py-0.2 bg-surface-container text-on-surface-variant rounded border border-outline-variant font-mono">KY-MAST</span>
+</div>
+</td>
+<td class="px-4 text-body-sm text-on-surface-variant">Hedge Fund</td>
+<td class="px-4 text-body-sm font-medium text-on-surface">
+<span class="flex items-center gap-1.5">
+<span class="w-5 h-5 rounded bg-surface-container text-secondary text-label-sm font-label-sm flex items-center justify-center font-bold">SJ</span>
+                      Sarah Jenkins
+                    </span>
+</td>
+<td class="px-4 py-2">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-label-sm font-label-sm font-mono bg-emerald-50 text-emerald-800 border border-emerald-200">
+<span class="material-symbols-outlined text-xs text-emerald-600" data-icon="check_circle">check_circle</span>
+                        6 Received
+                      </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-label-sm font-label-sm font-mono bg-amber-100 text-amber-900 border border-amber-300 font-semibold">
+<span class="material-symbols-outlined text-xs text-amber-700" data-icon="warning">warning</span>
+                        3 Unconfirmed
+                      </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-label-sm font-label-sm font-mono bg-slate-100 text-slate-700 border border-slate-300">
+<span class="material-symbols-outlined text-xs text-slate-400" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+                        0 Missing
+                      </span>
+</div>
+</td>
+<td class="px-4 text-label-sm font-label-sm font-mono text-on-surface-variant">
+                    01:15 EST
+                  </td>
+<td class="px-4 text-right" onclick="event.stopPropagation()">
+<a class="inline-flex items-center gap-1 px-2.5 py-1 text-label-md font-label-md font-semibold text-secondary hover:text-primary hover:bg-surface-container rounded border border-transparent hover:border-outline-variant transition-all focus-ring" href="#open-case-cs-8104">
+                      Open Case
+                      <span class="material-symbols-outlined text-xs" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</td>
+</tr>
+<!-- ROW 4: Vanguard Energy Infrastructure VI (NEEDS REVIEW) -->
+<tr class="hover:bg-surface-container-low transition-colors group cursor-pointer bg-amber-50/20" onclick="handleRowSelect('CS-7719')">
+<td class="px-4 text-center" onclick="event.stopPropagation()">
+<input aria-label="Select case CS-7719" class="rounded border-outline text-secondary focus-ring w-3.5 h-3.5" type="checkbox"/>
+</td>
+<td class="px-4 font-label-md font-label-md font-mono font-bold text-on-surface">
+<span class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                      CS-7719
+                    </span>
+</td>
+<td class="px-4 font-medium text-on-surface">
+<div class="flex items-center gap-2">
+<span>Vanguard Energy Infrastructure VI LP</span>
+<span class="text-label-sm font-label-sm px-1.5 py-0.2 bg-surface-container text-on-surface-variant rounded border border-outline-variant font-mono">SEC-LP</span>
+</div>
+</td>
+<td class="px-4 text-body-sm text-on-surface-variant">Private Equity Fund</td>
+<td class="px-4 text-body-sm font-medium text-on-surface">
+<span class="flex items-center gap-1.5">
+<span class="w-5 h-5 rounded bg-surface-container text-secondary text-label-sm font-label-sm flex items-center justify-center font-bold">SJ</span>
+                      Sarah Jenkins
+                    </span>
+</td>
+<td class="px-4 py-2">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-label-sm font-label-sm font-mono bg-emerald-50 text-emerald-800 border border-emerald-200">
+<span class="material-symbols-outlined text-xs text-emerald-600" data-icon="check_circle">check_circle</span>
+                        11 Received
+                      </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-label-sm font-label-sm font-mono bg-amber-100 text-amber-900 border border-amber-300 font-semibold">
+<span class="material-symbols-outlined text-xs text-amber-700" data-icon="warning">warning</span>
+                        1 Unconfirmed
+                      </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-label-sm font-label-sm font-mono bg-slate-100 text-slate-700 border border-slate-300">
+<span class="material-symbols-outlined text-xs text-slate-400" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+                        4 Missing
+                      </span>
+</div>
+</td>
+<td class="px-4 text-label-sm font-label-sm font-mono text-on-surface-variant">
+                    03:40 EST
+                  </td>
+<td class="px-4 text-right" onclick="event.stopPropagation()">
+<a class="inline-flex items-center gap-1 px-2.5 py-1 text-label-md font-label-md font-semibold text-secondary hover:text-primary hover:bg-surface-container rounded border border-transparent hover:border-outline-variant transition-all focus-ring" href="#open-case-cs-7719">
+                      Open Case
+                      <span class="material-symbols-outlined text-xs" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</td>
+</tr>
+<!-- ROW 5: Horizon Maritime Finance Inc (NORMAL / CHASE PENDING) -->
+<tr class="hover:bg-surface-container-low transition-colors group cursor-pointer" onclick="handleRowSelect('CS-6640')">
+<td class="px-4 text-center" onclick="event.stopPropagation()">
+<input aria-label="Select case CS-6640" class="rounded border-outline text-secondary focus-ring w-3.5 h-3.5" type="checkbox"/>
+</td>
+<td class="px-4 font-label-md font-label-md font-mono font-bold text-on-surface">
+<span class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                      CS-6640
+                    </span>
+</td>
+<td class="px-4 font-medium text-on-surface">
+<div class="flex items-center gap-2">
+<span>Horizon Maritime Finance Inc</span>
+<span class="text-label-sm font-label-sm px-1.5 py-0.2 bg-surface-container text-on-surface-variant rounded border border-outline-variant font-mono">LIB-CORP</span>
+</div>
+</td>
+<td class="px-4 text-body-sm text-on-surface-variant">Corporate Treasury</td>
+<td class="px-4 text-body-sm font-medium text-on-surface">
+<span class="flex items-center gap-1.5">
+<span class="w-5 h-5 rounded bg-surface-container text-secondary text-label-sm font-label-sm flex items-center justify-center font-bold">SJ</span>
+                      Sarah Jenkins
+                    </span>
+</td>
+<td class="px-4 py-2">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-label-sm font-label-sm font-mono bg-emerald-50 text-emerald-800 border border-emerald-200">
+<span class="material-symbols-outlined text-xs text-emerald-600" data-icon="check_circle">check_circle</span>
+                        9 Received
+                      </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-label-sm font-label-sm font-mono bg-slate-100 text-slate-700 border border-slate-300">
+<span class="material-symbols-outlined text-xs text-slate-400" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+                        3 Missing
+                      </span>
+</div>
+</td>
+<td class="px-4 text-label-sm font-label-sm font-mono text-on-surface-variant">
+                    Yesterday
+                  </td>
+<td class="px-4 text-right" onclick="event.stopPropagation()">
+<a class="inline-flex items-center gap-1 px-2.5 py-1 text-label-md font-label-md font-semibold text-secondary hover:text-primary hover:bg-surface-container rounded border border-transparent hover:border-outline-variant transition-all focus-ring" href="#open-case-cs-6640">
+                      Open Case
+                      <span class="material-symbols-outlined text-xs" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</td>
+</tr>
+<!-- ROW 6: Aethelgard Sovereign Capital (NORMAL) -->
+<tr class="hover:bg-surface-container-low transition-colors group cursor-pointer" onclick="handleRowSelect('CS-5912')">
+<td class="px-4 text-center" onclick="event.stopPropagation()">
+<input aria-label="Select case CS-5912" class="rounded border-outline text-secondary focus-ring w-3.5 h-3.5" type="checkbox"/>
+</td>
+<td class="px-4 font-label-md font-label-md font-mono font-bold text-on-surface">
+<span class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                      CS-5912
+                    </span>
+</td>
+<td class="px-4 font-medium text-on-surface">
+<div class="flex items-center gap-2">
+<span>Aethelgard Sovereign Capital AG</span>
+<span class="text-label-sm font-label-sm px-1.5 py-0.2 bg-surface-container text-on-surface-variant rounded border border-outline-variant font-mono">CHE-AG</span>
+</div>
+</td>
+<td class="px-4 text-body-sm text-on-surface-variant">Institutional Asset Mgr</td>
+<td class="px-4 text-body-sm font-medium text-on-surface">
+<span class="flex items-center gap-1.5">
+<span class="w-5 h-5 rounded bg-surface-container text-secondary text-label-sm font-label-sm flex items-center justify-center font-bold">SJ</span>
+                      Sarah Jenkins
+                    </span>
+</td>
+<td class="px-4 py-2">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-label-sm font-label-sm font-mono bg-emerald-50 text-emerald-800 border border-emerald-200">
+<span class="material-symbols-outlined text-xs text-emerald-600" data-icon="check_circle">check_circle</span>
+                        17 Received
+                      </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-label-sm font-label-sm font-mono bg-slate-100 text-slate-700 border border-slate-300">
+<span class="material-symbols-outlined text-xs text-slate-400" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+                        1 Missing
+                      </span>
+</div>
+</td>
+<td class="px-4 text-label-sm font-label-sm font-mono text-on-surface-variant">
+                    2d ago
+                  </td>
+<td class="px-4 text-right" onclick="event.stopPropagation()">
+<a class="inline-flex items-center gap-1 px-2.5 py-1 text-label-md font-label-md font-semibold text-secondary hover:text-primary hover:bg-surface-container rounded border border-transparent hover:border-outline-variant transition-all focus-ring" href="#open-case-cs-5912">
+                      Open Case
+                      <span class="material-symbols-outlined text-xs" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</td>
+</tr>
+<!-- ROW 7: Closed Case Representative row (Closed Tag Preview) -->
+<tr class="hover:bg-surface-container-low transition-colors group cursor-pointer opacity-75 bg-slate-50" onclick="handleRowSelect('CS-4100')">
+<td class="px-4 text-center" onclick="event.stopPropagation()">
+<input aria-label="Select case CS-4100" class="rounded border-outline text-secondary focus-ring w-3.5 h-3.5" type="checkbox"/>
+</td>
+<td class="px-4 font-label-md font-label-md font-mono text-on-surface-variant">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-xs text-emerald-600" data-icon="check">check</span>
+                      CS-4100
+                    </span>
+</td>
+<td class="px-4 font-medium text-on-surface line-through decoration-outline-variant">
+<div class="flex items-center gap-2">
+<span>Nordic Nordic Renewable Credit IV</span>
+<span class="text-label-sm font-label-sm px-1.5 py-0.2 bg-emerald-50 text-emerald-800 rounded border border-emerald-200 font-mono">ONBOARDED</span>
+</div>
+</td>
+<td class="px-4 text-body-sm text-on-surface-variant">Private Debt Fund</td>
+<td class="px-4 text-body-sm font-medium text-on-surface-variant">
+<span class="flex items-center gap-1.5">
+<span class="w-5 h-5 rounded bg-surface-container-high text-on-surface-variant text-label-sm font-label-sm flex items-center justify-center font-bold">SJ</span>
+                      Sarah Jenkins
+                    </span>
+</td>
+<td class="px-4 py-2">
+<div class="flex items-center gap-1.5">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-label-sm font-label-sm font-mono bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold">
+<span class="material-symbols-outlined text-xs text-emerald-600" data-icon="verified">verified</span>
+                        18 Received (100% Completed)
+                      </span>
+</div>
+</td>
+<td class="px-4 text-label-sm font-label-sm font-mono text-on-surface-variant">
+                    12 Aug 2024
+                  </td>
+<td class="px-4 text-right" onclick="event.stopPropagation()">
+<span class="text-label-sm font-label-sm font-mono text-emerald-800 px-2 py-1 bg-emerald-50 border border-emerald-200 rounded">
+                      CLOSED
+                    </span>
+</td>
+</tr>
+</tbody>
+<!-- SKELETON STATE (Hidden by default, triggered via preview pill) -->
+<tbody class="hidden divide-y divide-outline-variant" id="queue-skeleton">
+<tr class="animate-pulse">
+<td class="px-4 py-3 text-center"><div class="w-4 h-4 bg-surface-container rounded mx-auto"></div></td>
+<td class="px-4 py-3"><div class="h-4 w-16 bg-surface-container rounded"></div></td>
+<td class="px-4 py-3"><div class="h-4 w-48 bg-surface-container rounded"></div></td>
+<td class="px-4 py-3"><div class="h-4 w-28 bg-surface-container rounded"></div></td>
+<td class="px-4 py-3"><div class="h-4 w-24 bg-surface-container rounded"></div></td>
+<td class="px-4 py-3"><div class="h-5 w-52 bg-surface-container rounded"></div></td>
+<td class="px-4 py-3"><div class="h-4 w-14 bg-surface-container rounded"></div></td>
+<td class="px-4 py-3 text-right"><div class="h-6 w-20 bg-surface-container rounded ml-auto"></div></td>
+</tr>
+<tr class="animate-pulse">
+<td class="px-4 py-3 text-center"><div class="w-4 h-4 bg-surface-container rounded mx-auto"></div></td>
+<td class="px-4 py-3"><div class="h-4 w-16 bg-surface-container rounded"></div></td>
+<td class="px-4 py-3"><div class="h-4 w-40 bg-surface-container rounded"></div></td>
+<td class="px-4 py-3"><div class="h-4 w-32 bg-surface-container rounded"></div></td>
+<td class="px-4 py-3"><div class="h-4 w-24 bg-surface-container rounded"></div></td>
+<td class="px-4 py-3"><div class="h-5 w-44 bg-surface-container rounded"></div></td>
+<td class="px-4 py-3"><div class="h-4 w-14 bg-surface-container rounded"></div></td>
+<td class="px-4 py-3 text-right"><div class="h-6 w-20 bg-surface-container rounded ml-auto"></div></td>
+</tr>
+<tr class="animate-pulse">
+<td class="px-4 py-3 text-center"><div class="w-4 h-4 bg-surface-container rounded mx-auto"></div></td>
+<td class="px-4 py-3"><div class="h-4 w-16 bg-surface-container rounded"></div></td>
+<td class="px-4 py-3"><div class="h-4 w-56 bg-surface-container rounded"></div></td>
+<td class="px-4 py-3"><div class="h-4 w-24 bg-surface-container rounded"></div></td>
+<td class="px-4 py-3"><div class="h-4 w-24 bg-surface-container rounded"></div></td>
+<td class="px-4 py-3"><div class="h-5 w-48 bg-surface-container rounded"></div></td>
+<td class="px-4 py-3"><div class="h-4 w-14 bg-surface-container rounded"></div></td>
+<td class="px-4 py-3 text-right"><div class="h-6 w-20 bg-surface-container rounded ml-auto"></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- EMPTY STATE CONTAINER (Hidden by default, toggled via state preview) -->
+<div class="hidden p-12 text-center flex flex-col items-center justify-center" id="queue-empty">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant mb-3 border border-outline-variant">
+<span class="material-symbols-outlined text-2xl" data-icon="inbox">inbox</span>
+</div>
+<h3 class="text-headline-sm font-headline-sm font-bold text-on-surface">No Active Cases Found</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant max-w-sm mt-1">
+              There are no pending corporate onboarding packages matching the current filter parameters (Sarah Jenkins, RM-842).
+            </p>
+<div class="mt-4 flex items-center gap-2">
+<button class="bg-primary text-on-primary px-3 py-1.5 rounded text-label-md font-label-md font-semibold hover:bg-inverse-surface transition-colors focus-ring" onclick="switchState('active')">
+                Reset All Filters
+              </button>
+</div>
+</div>
+<!-- TABLE FOOTER / AUDIT PAGINATION STRIP -->
+<div class="bg-surface-container-low border-t border-outline-variant px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 text-label-sm font-label-sm text-on-surface-variant select-none">
+<div class="flex items-center gap-2">
+<span>Showing <strong>1 - 7</strong> of <strong>14</strong> institutional client records</span>
+<span class="text-outline">|</span>
+<span class="font-mono">Sync latency: 28ms</span>
+</div>
+<!-- Pagination buttons -->
+<div class="flex items-center gap-1">
+<button class="px-2 py-1 rounded border border-outline-variant bg-surface-container-lowest text-on-surface hover:bg-surface-container transition-colors disabled:opacity-50 focus-ring" disabled="">
+                Previous
+              </button>
+<button class="px-2.5 py-1 rounded border border-primary bg-primary text-on-primary font-mono font-semibold focus-ring">
+                1
+              </button>
+<button class="px-2.5 py-1 rounded border border-outline-variant bg-surface-container-lowest text-on-surface hover:bg-surface-container font-mono transition-colors focus-ring">
+                2
+              </button>
+<button class="px-2 py-1 rounded border border-outline-variant bg-surface-container-lowest text-on-surface hover:bg-surface-container transition-colors focus-ring">
+                Next
+              </button>
+</div>
+</div>
+</div>
+<!-- SECONDARY DETAIL CONTEXT: Institutional Chasing Rule Verification -->
+<div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+<!-- Institutional Rule 1: Zero-Duplicate Rule -->
+<div class="bg-surface-container-lowest border border-outline-variant p-4 rounded flex items-start gap-3">
+<div class="p-2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 mt-0.5">
+<span class="material-symbols-outlined text-base" data-icon="fact_check">fact_check</span>
+</div>
+<div>
+<div class="text-label-md font-label-md font-bold text-on-surface">Zero-Duplicate Guarantee</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-1">
+                Automated chase sequences never request already-received documents. Received files are cryptographically locked in the audit vault.
+              </p>
+</div>
+</div>
+<!-- Institutional Rule 2: Unconfirmed Priority Engine -->
+<div class="bg-surface-container-lowest border border-outline-variant p-4 rounded flex items-start gap-3">
+<div class="p-2 rounded bg-amber-50 text-amber-700 border border-amber-200 mt-0.5">
+<span class="material-symbols-outlined text-base" data-icon="low_priority">low_priority</span>
+</div>
+<div>
+<div class="text-label-md font-label-md font-bold text-on-surface">T-3 Chase Escalation Rule</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-1">
+                Cases with unconfirmed submissions trigger automated verification alerts to the designated compliance analyst prior to RM sign-off.
+              </p>
+</div>
+</div>
+<!-- Institutional Rule 3: Regulatory Audit Compliance -->
+<div class="bg-surface-container-lowest border border-outline-variant p-4 rounded flex items-start gap-3">
+<div class="p-2 rounded bg-surface-container text-secondary border border-outline-variant mt-0.5">
+<span class="material-symbols-outlined text-base" data-icon="policy">policy</span>
+</div>
+<div>
+<div class="text-label-md font-label-md font-bold text-on-surface">FINRA / SEC Form BD Match</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-1">
+                All client entities mapped directly against centralized LEI and CRD registries with timestamped immutable chase logs.
+              </p>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- INLINE VANILLA JAVASCRIPT FOR INTERACTIVE DEMONSTRATION -->
+<script>
+    // State Switcher Function for demonstrating UI States
+    function switchState(state) {
+      const activeBody = document.getElementById('queue-body');
+      const skeletonBody = document.getElementById('queue-skeleton');
+      const emptyContainer = document.getElementById('queue-empty');
+      const errorBanner = document.getElementById('system-error-banner');
+
+      // Pill buttons
+      const pillActive = document.getElementById('state-pill-active');
+      const pillLoading = document.getElementById('state-pill-loading');
+      const pillEmpty = document.getElementById('state-pill-empty');
+      const pillError = document.getElementById('state-pill-error');
+
+      // Reset all pills styling to inactive
+      [pillActive, pillLoading, pillEmpty, pillError].forEach(pill => {
+        pill.className = "px-2.5 py-1 text-label-sm font-label-sm rounded font-medium border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low focus-ring";
+      });
+
+      if (state === 'active') {
+        activeBody.classList.remove('hidden');
+        skeletonBody.classList.add('hidden');
+        emptyContainer.classList.add('hidden');
+        errorBanner.classList.add('hidden');
+        pillActive.className = "px-2.5 py-1 text-label-sm font-label-sm rounded font-medium border border-primary bg-primary text-on-primary focus-ring";
+      } else if (state === 'loading') {
+        activeBody.classList.add('hidden');
+        skeletonBody.classList.remove('hidden');
+        emptyContainer.classList.add('hidden');
+        errorBanner.classList.add('hidden');
+        pillLoading.className = "px-2.5 py-1 text-label-sm font-label-sm rounded font-medium border border-primary bg-primary text-on-primary focus-ring";
+      } else if (state === 'empty') {
+        activeBody.classList.add('hidden');
+        skeletonBody.classList.add('hidden');
+        emptyContainer.classList.remove('hidden');
+        errorBanner.classList.add('hidden');
+        pillEmpty.className = "px-2.5 py-1 text-label-sm font-label-sm rounded font-medium border border-primary bg-primary text-on-primary focus-ring";
+      } else if (state === 'error') {
+        activeBody.classList.remove('hidden');
+        skeletonBody.classList.add('hidden');
+        emptyContainer.classList.add('hidden');
+        errorBanner.classList.remove('hidden');
+        pillError.className = "px-2.5 py-1 text-label-sm font-label-sm rounded font-medium border border-amber-500 bg-amber-100 text-amber-900 font-semibold focus-ring";
+      }
+    }
+
+    // Toggle Needs Review Filter
+    let filterNeedsReview = true;
+    function toggleNeedsReviewFilter() {
+      filterNeedsReview = !filterNeedsReview;
+      const btn = document.getElementById('needs-review-toggle');
+      const rows = document.querySelectorAll('#queue-body tr');
+
+      if (filterNeedsReview) {
+        btn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded border border-amber-300 bg-amber-50 text-amber-900 text-label-md font-label-md font-semibold focus-ring transition-colors shadow-sm";
+        btn.innerHTML = `
+          <span class="material-symbols-outlined text-sm text-amber-700" data-icon="filter_alt">filter_alt</span>
+          <span>Needs Review Filter: <strong class="underline decoration-amber-500">Active</strong></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-600 ml-1"></span>
+        `;
+        // Show all
+        rows.forEach(r => r.style.display = "");
+      } else {
+        btn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded border border-outline-variant bg-surface-container-lowest text-on-surface-variant text-label-md font-label-md hover:text-on-surface focus-ring transition-colors";
+        btn.innerHTML = `
+          <span class="material-symbols-outlined text-sm text-on-surface-variant" data-icon="filter_alt_off">filter_alt_off</span>
+          <span>Needs Review Filter: Off</span>
+        `;
+      }
+    }
+
+    // Search Filter handler
+    function handleSearch(query) {
+      const term = query.toLowerCase().trim();
+      const rows = document.querySelectorAll('#queue-body tr');
+      let visibleCount = 0;
+
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        if (text.includes(term)) {
+          row.style.display = "";
+          visibleCount++;
+        } else {
+          row.style.display = "none";
+        }
+      });
+
+      const emptyDiv = document.getElementById('queue-empty');
+      const activeBody = document.getElementById('queue-body');
+      if (visibleCount === 0 && term !== "") {
+        activeBody.classList.add('hidden');
+        emptyDiv.classList.remove('hidden');
+      } else {
+        activeBody.classList.remove('hidden');
+        emptyDiv.classList.add('hidden');
+      }
+    }
+
+    function handleRowSelect(caseId) {
+      // Visual feedback for row selection
+      console.log("Navigating to detailed Document Ledger for:", caseId);
+    }
+
+    function simulateSync() {
+      const btn = document.getElementById('manual-sync-btn');
+      btn.classList.add('animate-spin');
+      setTimeout(() => {
+        btn.classList.remove('animate-spin');
+      }, 700);
+    }
+
+    function retrySync() {
+      const banner = document.getElementById('system-error-banner');
+      banner.innerHTML = `
+        <div class="flex items-center gap-2 text-emerald-800 text-body-sm font-semibold">
+          <span class="material-symbols-outlined text-base text-emerald-600" data-icon="check_circle">check_circle</span>
+          Connection restored. Live stream synchronized with Desk ID RM-NYC-084 at 09:43:10 EST.
+        </div>
+      `;
+      setTimeout(() => {
+        switchState('active');
+      }, 1200);
+    }
+
+    function dismissErrorBanner() {
+      document.getElementById('system-error-banner').classList.add('hidden');
+    }
+  </script>
+</body></html>
