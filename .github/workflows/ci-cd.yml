@@ -1,7 +1,9 @@
-name: CI / CD
+name: Build, Test & Deploy to Google Cloud Run
 
 on:
   pull_request:
+    branches:
+      - main
   push:
     branches:
       - main
@@ -11,14 +13,14 @@ permissions:
   contents: read
 
 env:
-  REGION: asia-south1
-  SERVICE: apex-institutional-ledger
+  GCP_REGION: ${{ vars.GCP_REGION || 'asia-south1' }}
+  CLOUD_RUN_SERVICE: apex-institutional-ledger
   IMAGE: ghcr.io/anandnavanee/fde
   GCP_PROJECT_ID: slabspro-slabsuser45
 
 jobs:
-  verify:
-    name: Type-check and build
+  test:
+    name: Type-check, build, and validate Docker
     runs-on: ubuntu-latest
     steps:
       - name: Check out source
@@ -39,10 +41,10 @@ jobs:
       - name: Validate Docker build
         run: docker build --tag apex-institutional-ledger:ci .
 
-  publish-image:
+  publish:
     name: Publish container image
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
-    needs: verify
+    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch' }}
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -68,9 +70,9 @@ jobs:
             ${{ env.IMAGE }}:latest
 
   deploy:
-    name: Deploy Cloud Run
-    if: ${{ needs.publish-image.result == 'success' && vars.DEPLOY_TO_CLOUD_RUN == 'true' && vars.GCP_WIF_PROVIDER != '' && vars.GCP_SERVICE_ACCOUNT != '' }}
-    needs: publish-image
+    name: Deploy frontend to Cloud Run
+    if: ${{ needs.publish.result == 'success' && vars.DEPLOY_TO_CLOUD_RUN == 'true' && vars.GCP_WIF_PROVIDER != '' && vars.GCP_SERVICE_ACCOUNT != '' }}
+    needs: publish
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -87,14 +89,35 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
 
       - name: Deploy to Cloud Run
-        run: >-
-          gcloud run deploy "$SERVICE"
-          --image "$IMAGE:${GITHUB_SHA}"
-          --project "$GCP_PROJECT_ID"
-          --region "$REGION"
-          --platform managed
-          --port 8080
-          --memory 256Mi
-          --max 3
-          --allow-unauthenticated
-          --quiet
+        id: deploy
+        env:
+          IMAGE_TAG: ${{ env.IMAGE }}:${{ github.sha }}
+        run: |
+          gcloud run deploy "$CLOUD_RUN_SERVICE" \
+            --image "$IMAGE_TAG" \
+            --project "$GCP_PROJECT_ID" \
+            --region "$GCP_REGION" \
+            --platform managed \
+            --port 8080 \
+            --memory 256Mi \
+            --max 3 \
+            --allow-unauthenticated \
+            --quiet
+
+          SERVICE_URL="$(gcloud run services describe "$CLOUD_RUN_SERVICE" \
+            --project "$GCP_PROJECT_ID" \
+            --region "$GCP_REGION" \
+            --format='value(status.url)')"
+          echo "service_url=$SERVICE_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Deployment summary
+        env:
+          SERVICE_URL: ${{ steps.deploy.outputs.service_url }}
+        run: |
+          {
+            echo "### Cloud Run deployment complete"
+            echo
+            echo "| Service | Region | URL |"
+            echo "| --- | --- | --- |"
+            echo "| \`$CLOUD_RUN_SERVICE\` | \`$GCP_REGION\` | [$SERVICE_URL]($SERVICE_URL) |"
+          } >> "$GITHUB_STEP_SUMMARY"

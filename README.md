@@ -14,7 +14,7 @@ Run `npm run build` to type-check and create the production build in `dist/`.
 
 The `Dockerfile` builds the Vite app and serves the static SPA with unprivileged Nginx on port 8080. Build locally with `docker build -t apex-institutional-ledger .` and run with `docker run --rm -p 8080:8080 apex-institutional-ledger`.
 
-The `.github/workflows/ci-cd.yml` workflow type-checks and builds on pull requests and pushes to `main`. A successful push to `main` builds and publishes the image to `ghcr.io/anandnavanee/fde`, then deploys it to Cloud Run in `asia-south1`. The Cloud Run demo service is configured for public access.
+The `.github/workflows/ci-cd.yml` workflow type-checks, builds, and validates the Docker image on pull requests and pushes to `main`. A successful push to `main` builds and publishes the image to `ghcr.io/anandnavanee/fde`; the Cloud Run job deploys it to `asia-south1` when deployment is explicitly enabled and its WIF configuration is present. The Cloud Run deployment requests public access.
 
 Before the first deployment:
 
@@ -56,7 +56,7 @@ Before the first deployment:
    - `GCP_WIF_PROVIDER`: full Workload Identity Provider resource name.
    - `GCP_SERVICE_ACCOUNT`: service account email used by GitHub Actions.
 3. Push to `main` once to publish the `fde` package. Set its visibility to **Public** in GitHub Packages; Cloud Run can directly deploy public GHCR images, while private GHCR images require an Artifact Registry remote repository.
-4. Once the package is public and the WIF variables are set, add the repository variable `DEPLOY_TO_CLOUD_RUN` with the value `true`. Push to `main` or run the workflow manually to build, publish, and deploy.
+4. Once the package is public and the WIF variables are set, add the repository variable `DEPLOY_TO_CLOUD_RUN` with the value `true`. The deployer identity must be allowed to deploy the service and apply its public Invoker policy; the organization must permit unauthenticated Cloud Run access. Push to `main` or run the workflow manually to build, publish, and deploy.
 
 The Cloud Run deployment job remains skipped until `DEPLOY_TO_CLOUD_RUN` is explicitly enabled and both WIF variables exist. This lets CI and GHCR publishing work before GCP identity is configured.
 
