@@ -3,11 +3,9 @@ import { initialCases } from "./data";
 import type { CaseRecord, DocumentStatus, Page } from "./types";
 
 const navItems = [
-  { id: "queue", label: "All Institutional Cases", icon: "▣" },
-  { id: "review", label: "KYC/AML Review", icon: "⬡" },
-  { id: "pending", label: "Pending Client Chase", icon: "◉" },
-  { id: "escalations", label: "Escalations", icon: "⚠" },
-  { id: "archive", label: "Dispatched Archive", icon: "▤" },
+  { id: "queue", label: "All cases", icon: "▣" },
+  { id: "review", label: "Needs review", icon: "⬡" },
+  { id: "pending", label: "Waiting on client", icon: "◉" },
 ] as const;
 
 function App() {
@@ -15,7 +13,7 @@ function App() {
   const [selectedCaseId, setSelectedCaseId] = useState("CS-9402");
   const [page, setPage] = useState<Page>("queue");
   const [search, setSearch] = useState("");
-  const [activeFilter, setActiveFilter] = useState("All Institutional Cases");
+  const [activeFilter, setActiveFilter] = useState("All cases");
   const [rmFilter, setRmFilter] = useState("all");
   const [showAudit, setShowAudit] = useState(false);
   const [notice, setNotice] = useState("");
@@ -45,11 +43,9 @@ function App() {
     const query = search.trim().toLowerCase();
     return cases.filter((item) => {
       const matchesSearch = !query || `${item.id} ${item.client} ${item.type} ${item.rm}`.toLowerCase().includes(query);
-      const matchesFilter = activeFilter === "All Institutional Cases"
-        || (activeFilter === "KYC/AML Review" && item.documents.some((doc) => doc.status === "Unconfirmed"))
-        || (activeFilter === "Pending Client Chase" && item.documents.some((doc) => doc.status === "Missing"))
-        || (activeFilter === "Escalations" && item.id === "CS-9402")
-        || (activeFilter === "Dispatched Archive" && item.id === "CS-4100");
+      const matchesFilter = activeFilter === "All cases"
+        || (activeFilter === "Needs review" && item.documents.some((doc) => doc.status === "Unconfirmed"))
+        || (activeFilter === "Waiting on client" && item.documents.some((doc) => doc.status === "Missing"));
       const matchesRm = rmFilter === "all" || item.rm === rmFilter;
       return matchesSearch && matchesFilter && matchesRm;
     });
@@ -74,7 +70,7 @@ function App() {
 
   function navigate(nextPage: Page) {
     setPage(nextPage);
-    setActiveFilter("All Institutional Cases");
+    setActiveFilter("All cases");
   }
 
   function saveDraft() {
@@ -110,9 +106,6 @@ function App() {
           <button className={page === "chase" ? "top-link active" : "top-link"} onClick={() => navigate("chase")}>Chase Engine</button>
           <button className="top-link" onClick={() => setShowAudit(true)}>Audit Trail</button>
         </nav>
-        <div className="sync-status"><span className="live-dot" /> <span>Sync Status: Live<br /><small>(09:42 EST)</small></span><span className="sync-symbol">↻</span></div>
-        <button className="button button-dark new-client" onClick={() => setNotice("New client onboarding is a demo-only workflow.")}>＋ <span>New Client<br />Onboarding</span></button>
-        <div className="top-tools"><button aria-label="Notifications">♧</button><button aria-label="Help" onClick={() => setNotice("Demo workspace · sample data only.")}>ⓘ</button><button aria-label="Settings" onClick={() => setNotice("Settings are not available in this demo.")}>⚙</button></div>
         <div className="user-chip"><span className="avatar">SJ</span><span>Sarah Jenkins<small>RM-842</small></span></div>
       </header>
 
@@ -121,22 +114,19 @@ function App() {
         <div className="sidebar-nav">
           {navItems.map((item, index) => (
             <button key={item.id} className={`side-link ${activeFilter === item.label ? "selected" : ""}`} onClick={() => {
-              setActiveFilter(item.label === "Escalations" ? item.label : item.label);
+              setActiveFilter(item.label);
               if (page !== "queue") setPage("queue");
             }}>
               <span className="side-icon">{item.icon}</span><span>{item.label}</span>
               {index === 0 && <span className="side-count">{cases.length}</span>}
-              {index === 1 && <span className="side-count blue">{cases.reduce((count, entry) => count + entry.documents.filter((doc) => doc.status === "Unconfirmed").length, 0)}</span>}
+              {index === 1 && <span className="side-count blue">{cases.filter((entry) => entry.documents.some((doc) => doc.status === "Unconfirmed")).length}</span>}
               {index === 2 && <span className="side-count orange">{cases.filter((entry) => entry.documents.some((doc) => doc.status === "Missing")).length}</span>}
-              {index === 3 && <span className="side-count red">1</span>}
             </button>
           ))}
         </div>
-        <button className="quick-chase" onClick={() => navigate("chase")}><span>ϟ</span> Quick Chase (T-3) <b>→</b></button>
         <div className="sidebar-bottom">
-          <button className="side-link"><span className="side-icon">⚒</span>Compliance Direct</button>
-          <button className="side-link" onClick={() => setShowAudit(true)}><span className="side-icon">▤</span>Audit Logs</button>
-          <div className="compliance-note">SEC Rule 17a-4 Compliant<br />Session · Demo environment</div>
+          <button className="side-link" onClick={() => setShowAudit(true)}><span className="side-icon">▤</span>Activity history</button>
+          <div className="compliance-note">Sample workspace<br />Changes are not saved</div>
         </div>
       </aside>
 
@@ -144,7 +134,6 @@ function App() {
         {page === "queue" && (
           <QueuePage
             cases={filteredCases}
-            totalCases={cases.length}
             activeFilter={activeFilter}
             search={search}
             setSearch={setSearch}
@@ -152,7 +141,6 @@ function App() {
             rmFilter={rmFilter}
             setRmFilter={setRmFilter}
             openCase={openCase}
-            setNotice={setNotice}
           />
         )}
         {page === "tracker" && (
@@ -166,7 +154,6 @@ function App() {
             onChase={() => navigate("chase")}
             onAudit={() => setShowAudit(true)}
             onQueue={() => navigate("queue")}
-            setNotice={setNotice}
           />
         )}
         {page === "chase" && (
@@ -202,7 +189,6 @@ function App() {
 
 interface QueuePageProps {
   cases: CaseRecord[];
-  totalCases: number;
   activeFilter: string;
   search: string;
   setSearch: (value: string) => void;
@@ -210,99 +196,99 @@ interface QueuePageProps {
   rmFilter: string;
   setRmFilter: (value: string) => void;
   openCase: (item: CaseRecord, page?: Page) => void;
-  setNotice: (value: string) => void;
 }
 
-function QueuePage({ cases, totalCases, activeFilter, search, setSearch, setActiveFilter, rmFilter, setRmFilter, openCase, setNotice }: QueuePageProps) {
-  const needsReview = cases.reduce((count, item) => count + item.documents.filter((doc) => doc.status === "Unconfirmed").length, 0);
-  const pendingChase = cases.filter((item) => item.documents.some((doc) => doc.status === "Missing")).length;
+function QueuePage({ cases, activeFilter, search, setSearch, setActiveFilter, rmFilter, setRmFilter, openCase }: QueuePageProps) {
   const [pageIndex, setPageIndex] = useState(1);
-  useEffect(() => setPageIndex(1), [activeFilter, search]);
+  useEffect(() => setPageIndex(1), [activeFilter, rmFilter, search]);
   const pageSize = 7;
   const pageCount = Math.max(1, Math.ceil(cases.length / pageSize));
   const visibleCases = cases.slice((pageIndex - 1) * pageSize, pageIndex * pageSize);
+  const actionCases = cases.filter((item) => item.documents.some((doc) => doc.status === "Missing" || doc.status === "Unconfirmed")).length;
 
   return (
     <>
-      <section className="summary-grid">
-        <SummaryCard label="Total Active Cases" value={String(totalCases)} hint="100% Desk Capacity" accent="navy" />
-        <SummaryCard label="Needs Review" value={String(needsReview)} hint="Unconfirmed Items" accent="amber" />
-        <SummaryCard label="Pending Client Chase" value={String(pendingChase)} hint="T-3 / T-7 Auto Queue" accent="blue" />
-        <SummaryCard label="Closed (Archived)" value="28" hint="Audit Verified" accent="slate" />
+      <section className="queue-intro">
+        <div><p className="eyebrow">Onboarding workspace</p><h1>Your cases</h1><p className="plain-language">Review documents and follow up with clients from one place.</p></div>
+        <div className="action-summary"><strong>{actionCases}</strong><span>cases need your attention</span></div>
       </section>
 
       <section className="queue-toolbar">
-        <label className="search-field"><span>⌕</span><input value={search} onChange={(event) => { setSearch(event.target.value); setPageIndex(1); }} placeholder="Filter by Client Name or Case ID (e.g. CS-9402)" /></label>
-        <select className="select-field" aria-label="Filter by relationship manager" value={rmFilter} onChange={(event) => setRmFilter(event.target.value)}>
-          <option value="all">RM: All Relationship Managers</option>
-          <option value="Sarah Jenkins">RM: Sarah Jenkins (RM-842)</option>
-          <option value="Marcus Vance">RM: Marcus Vance (VP-NYC)</option>
-        </select>
-        <button className="button filter-button" onClick={() => setActiveFilter(activeFilter === "KYC/AML Review" ? "All Institutional Cases" : "KYC/AML Review")}>▽ Needs Review Filter: <u>{activeFilter === "KYC/AML Review" ? "Active" : "Off"}</u><span className="amber-dot" /></button>
-        <button className="button" onClick={() => setNotice("CSV export prepared for this demo queue.")}>⇩ Export (.CSV)</button>
-        <button className="button icon-button" aria-label="Table display options" onClick={() => setNotice("Table display options are fixed for this demo.")}>▥</button>
-      </section>
-
-      <section className="preview-toolbar">
-        <span className="eyebrow">Preview UI States:</span>
-        <button className="preview-pill selected-preview" onClick={() => setNotice("Showing the active live queue.")}>Active Live Queue</button>
-        <button className="preview-pill" onClick={() => setNotice("Queue is up to date.")}>Loading Skeleton</button>
-        <button className="preview-pill" onClick={() => setSearch("no matching clients")}>Empty State</button>
-        <button className="preview-pill error-preview" onClick={() => setNotice("Sample system alert · queue data remains available.")}>System Error (08:15 EST)</button>
-        <span className="sort-hint">Sorted by: <b>Priority / Unconfirmed Docs Top</b></span>
+        <label className="search-field"><span aria-hidden="true">⌕</span><input aria-label="Search by client or case ID" value={search} onChange={(event) => { setSearch(event.target.value); setPageIndex(1); }} placeholder="Search by client or case ID" /></label>
+        <button className={`button filter-button ${activeFilter === "Waiting on client" ? "filter-active" : ""}`} onClick={() => setActiveFilter(activeFilter === "Waiting on client" ? "All cases" : "Waiting on client")}>{activeFilter === "Waiting on client" ? "Show all cases" : "Show cases waiting on client"}</button>
+        <details className="advanced-filters">
+          <summary>More filters</summary>
+          <div className="filter-popover">
+            <label htmlFor="review-filter">Document status</label>
+            <select id="review-filter" value={activeFilter === "Needs review" ? "Needs review" : activeFilter === "Waiting on client" ? "Waiting on client" : "All cases"} onChange={(event) => setActiveFilter(event.target.value)}>
+              <option value="All cases">All cases</option>
+              <option value="Needs review">Needs review</option>
+              <option value="Waiting on client">Waiting on client</option>
+            </select>
+            <label htmlFor="rm-filter">Relationship manager</label>
+            <select id="rm-filter" aria-label="Filter by relationship manager" value={rmFilter} onChange={(event) => setRmFilter(event.target.value)}>
+              <option value="all">All managers</option>
+              <option value="Sarah Jenkins">Sarah Jenkins</option>
+              <option value="Marcus Vance">Marcus Vance</option>
+            </select>
+          </div>
+        </details>
       </section>
 
       <section className="table-card">
         <div className="table-scroll">
           <table className="case-table">
             <thead><tr>
-              <th className="check-col"><input type="checkbox" aria-label="Select all cases" /></th><th>Case ID</th><th>Client Legal Entity</th><th>Institutional Type</th><th>RM Assigned</th><th>Document Ledger Status</th><th>Last Activity</th><th>Action</th>
+              <th>Case</th><th>Document status</th><th>Updated</th><th>Action</th>
             </tr></thead>
             <tbody>
               {visibleCases.map((item) => {
-                const received = item.documents.filter((doc) => doc.status === "Received").length;
                 const unconfirmed = item.documents.filter((doc) => doc.status === "Unconfirmed").length;
                 const missing = item.documents.filter((doc) => doc.status === "Missing").length;
                 return (
-                  <tr key={item.id} onClick={() => openCase(item)} className={item.id === "CS-4100" ? "archived-row" : ""}>
-                    <td onClick={(event) => event.stopPropagation()}><input type="checkbox" aria-label={`Select ${item.id}`} /></td>
-                    <td><span className={`priority-mark ${unconfirmed ? "warning" : ""}`}>{unconfirmed ? "●" : "·"}</span><strong className="mono">{item.id}</strong></td>
-                    <td><strong>{item.client}</strong><span className="mobile-detail">{item.code}</span></td>
-                    <td>{item.type}<span className="mobile-detail">{item.code}</span></td>
-                    <td><span className="rm-chip">{item.initials}</span> {item.rm}</td>
-                    <td className="status-cell"><StatusBadge status="Received" count={received} />{unconfirmed > 0 && <StatusBadge status="Unconfirmed" count={unconfirmed} />}{missing > 0 && <StatusBadge status="Missing" count={missing} />}</td>
-                    <td className="mono activity">{item.activity}</td>
-                    <td><button className="text-action" onClick={(event) => { event.stopPropagation(); openCase(item); }}>Open Case →</button></td>
-                  </tr>
+                  <CaseQueueRow key={item.id} item={item} unconfirmed={unconfirmed} missing={missing} openCase={openCase} />
                 );
               })}
-              {visibleCases.length === 0 && <tr><td className="empty-row" colSpan={8}>No matching cases. Try another client name or case ID.</td></tr>}
+              {visibleCases.length === 0 && <tr><td className="empty-row" colSpan={4}>No cases match that search. Try another client name or case ID.</td></tr>}
             </tbody>
           </table>
         </div>
-        <div className="table-footer"><span>Showing {cases.length === 0 ? 0 : (pageIndex - 1) * pageSize + 1} - {Math.min(pageIndex * pageSize, cases.length)} of {cases.length} institutional client records <span className="muted">| Sync latency: 28ms</span></span><div className="pagination"><button disabled={pageIndex === 1} onClick={() => setPageIndex((value) => Math.max(1, value - 1))}>Previous</button><span>{pageIndex}</span><button disabled={pageIndex >= pageCount} onClick={() => setPageIndex((value) => Math.min(pageCount, value + 1))}>Next</button></div></div>
-      </section>
-
-      <section className="assurance-grid">
-        <AssuranceCard icon="▣" title="Zero-Duplicate Guarantee" text="Automated chase sequences never request already-received documents. Received files are recorded in the demo ledger." tone="green" />
-        <AssuranceCard icon="↪" title="T-3 Chase Escalation Rule" text="Unconfirmed submissions trigger a review reminder before an RM-approved client follow-up." tone="amber" />
-        <AssuranceCard icon="⌕" title="FINRA / SEC Form BD Match" text="Client entities are shown against sample registry details with an illustrative audit history." tone="blue" />
+        <div className="table-footer"><span>{cases.length} {cases.length === 1 ? "case" : "cases"}{activeFilter !== "All cases" ? ` · ${activeFilter.toLowerCase()}` : ""}</span><div className="pagination"><button disabled={pageIndex === 1} onClick={() => setPageIndex((value) => Math.max(1, value - 1))}>Previous</button><span>{pageIndex} of {pageCount}</span><button disabled={pageIndex >= pageCount} onClick={() => setPageIndex((value) => Math.min(pageCount, value + 1))}>Next</button></div></div>
       </section>
     </>
   );
 }
 
-function SummaryCard({ label, value, hint, accent }: { label: string; value: string; hint: string; accent: string }) {
-  return <div className={`summary-card ${accent}`}><span className="eyebrow">{label}</span><div><strong>{value}</strong><span>{hint}</span></div></div>;
+function CaseQueueRow({ item, unconfirmed, missing, openCase }: { item: CaseRecord; unconfirmed: number; missing: number; openCase: (item: CaseRecord) => void }) {
+  const needsAttention = missing > 0 || unconfirmed > 0;
+  const summary = missing > 0
+    ? `${missing} document${missing === 1 ? "" : "s"} missing`
+    : unconfirmed > 0
+      ? `${unconfirmed} document${unconfirmed === 1 ? "" : "s"} to review`
+      : "All required documents received";
+  return (
+    <>
+      <tr className="desktop-case-row" onClick={() => openCase(item)}>
+        <td><strong>{item.client}</strong><span className="case-id mono">{item.id}</span></td>
+        <td><span className={`case-action-label ${needsAttention ? "needs-action" : "complete"}`}>{summary}</span></td>
+        <td className="activity">{item.activity}</td>
+        <td><button className="text-action" onClick={(event) => { event.stopPropagation(); openCase(item); }}>Open case →</button></td>
+      </tr>
+      <tr className="mobile-case-row"><td colSpan={4}>
+        <article className="mobile-case-card">
+          <div className="mobile-case-top"><strong>{item.client}</strong><span className="mono">{item.id}</span></div>
+          <span className={`case-action-label ${needsAttention ? "needs-action" : "complete"}`}>{summary}</span>
+          <div className="mobile-case-bottom"><span>Updated {item.activity}</span><button className="button" onClick={() => openCase(item)}>Open case</button></div>
+        </article>
+      </td></tr>
+    </>
+  );
 }
 
-function StatusBadge({ status, count }: { status: DocumentStatus; count: number }) {
+function StatusBadge({ status, count }: { status: DocumentStatus; count?: number }) {
   const icon = status === "Received" ? "✓" : status === "Unconfirmed" ? "△" : "◯";
-  return <span className={`status-badge ${status.toLowerCase()}`}><span>{icon}</span>{count} {status}</span>;
-}
-
-function AssuranceCard({ icon, title, text, tone }: { icon: string; title: string; text: string; tone: string }) {
-  return <article className="assurance-card"><span className={`assurance-icon ${tone}`}>{icon}</span><div><strong>{title}</strong><p>{text}</p></div></article>;
+  const label = status === "Unconfirmed" ? "Needs review" : status;
+  return <span className={`status-badge ${status.toLowerCase()}`}><span aria-hidden="true">{icon}</span>{count !== undefined && `${count} `}{label}</span>;
 }
 
 interface TrackerPageProps {
@@ -315,32 +301,31 @@ interface TrackerPageProps {
   onChase: () => void;
   onAudit: () => void;
   onQueue: () => void;
-  setNotice: (value: string) => void;
 }
 
-function TrackerPage({ item, docs, receivedCount, unconfirmedCount, missingCount, onStatus, onChase, onAudit, onQueue, setNotice }: TrackerPageProps) {
+function TrackerPage({ item, docs, receivedCount, unconfirmedCount, missingCount, onStatus, onChase, onAudit, onQueue }: TrackerPageProps) {
   const totalRequired = docs.filter((doc) => doc.required).length;
   const complete = totalRequired ? Math.round((receivedCount / totalRequired) * 100) : 0;
+  const requiredDocs = docs.filter((doc) => doc.required);
+  const optionalDocs = docs.filter((doc) => !doc.required);
   return (
     <>
-      <div className="sync-alert"><span>⚠</span><strong>Case document system slow / sync failed at 09:15 EST. Showing cached evidence.</strong><code>FAIL_CODE: RETRY_LIMIT_EXCEEDED</code><button onClick={() => setNotice("Sync retry complete · demo data is current.")}>↻ Retry Sync</button><button aria-label="Dismiss sync message" onClick={(event) => event.currentTarget.parentElement?.remove()}>×</button></div>
       <div className="case-heading">
-        <div className="breadcrumb"><button onClick={onQueue}>← Back to Case Queue</button><span>/</span><span className="eyebrow">Onboarding Ledger</span></div>
-        <div className="case-heading-row"><div><h1>Case {item.id}: {item.client}</h1><span className="case-state"><i /> Active In-Progress</span><div className="case-meta"><span>Client Type: <b>{item.type}</b></span><span>RM Assigned: <b>{item.rm} ({item.initials}-842)</b></span><span>Jurisdiction: <b>{item.jurisdiction}</b></span><span>Target Go-Live: <b>2024-11-01</b></span></div></div>
-          <div className="heading-actions"><button className="button" onClick={onAudit}>◉ Audit Trail <span className="mono">(14 entries)</span></button><button className="button button-dark" onClick={onChase}>▧ Draft Chase Email <span className="button-count">{missingCount} Missing, {unconfirmedCount} Unconfirmed</span></button></div>
+        <div className="breadcrumb"><button onClick={onQueue}>← All cases</button><span>/</span><span className="eyebrow">{item.id}</span></div>
+        <div className="case-heading-row"><div><h1>{item.client}</h1><div className="case-meta"><span>Client type: <b>{item.type}</b></span><span>Manager: <b>{item.rm}</b></span><span>Location: <b>{item.jurisdiction}</b></span></div></div>
+          <div className="heading-actions"><button className="button" onClick={onAudit}>Activity history</button><button className="button button-dark" onClick={onChase} disabled={missingCount === 0}>Prepare follow-up <span className="button-count">{missingCount} missing</span></button></div>
         </div>
       </div>
       <div className="tracker-layout">
         <section className="tracker-main">
-          <div className="completeness-card"><div className="completeness-heading"><span className="eyebrow">Package Completeness:</span><div className="progress"><span style={{ width: `${complete}%` }} /></div><strong>{receivedCount} / {totalRequired} Verified ({complete}%)</strong></div><div className="completeness-tags"><StatusBadge status="Received" count={receivedCount} /><StatusBadge status="Unconfirmed" count={unconfirmedCount} /><StatusBadge status="Missing" count={missingCount} /></div></div>
+          <div className="completeness-card"><div className="completeness-heading"><strong>{receivedCount} of {totalRequired} required documents received</strong><span>{missingCount} missing · {unconfirmedCount} need review</span></div><div className="progress" aria-label={`${complete}% of required documents received`}><span style={{ width: `${complete}%` }} /></div><p className="demo-explainer">This is sample data. Your changes are temporary and will reset when you refresh.</p></div>
           <section className="document-panel">
-            <div className="panel-heading"><div><span className="panel-icon">☷</span><h2>Mandatory &amp; Optional Documentation Assessment</h2></div><span className="eyebrow">Tier-1 Regulatory Schema: KYC-CORP-V4</span></div>
-            <div className="doc-column-head"><span>Requirement Label &amp; Identifiers</span><span>Obligation</span><span>Verification Status</span></div>
+            <div className="panel-heading"><div><span className="panel-icon">☷</span><h2>Required documents</h2></div></div>
             <div className="document-list">
-              {docs.map((doc) => <DocumentRow key={doc.id} doc={doc} onStatus={onStatus} setNotice={setNotice} />)}
+              {requiredDocs.map((doc) => <DocumentRow key={doc.id} doc={doc} onStatus={onStatus} />)}
             </div>
           </section>
-          <div className="ledger-note"><span>⬡</span> Bank Policy 84-B: Automated chase triggers suppress any document bearing a Verified Vault ingestion token within the prior 14 banking days.</div>
+          {optionalDocs.length > 0 && <details className="optional-documents"><summary>Optional documents ({optionalDocs.length})</summary><div className="document-list">{optionalDocs.map((doc) => <DocumentRow key={doc.id} doc={doc} onStatus={onStatus} />)}</div></details>}
         </section>
         <ChaseSummary item={item} docs={docs} onChase={onChase} />
       </div>
@@ -348,32 +333,30 @@ function TrackerPage({ item, docs, receivedCount, unconfirmedCount, missingCount
   );
 }
 
-function DocumentRow({ doc, onStatus, setNotice }: { doc: CaseRecord["documents"][number]; onStatus: (id: string, status: DocumentStatus) => void; setNotice: (value: string) => void }) {
+function DocumentRow({ doc, onStatus }: { doc: CaseRecord["documents"][number]; onStatus: (id: string, status: DocumentStatus) => void }) {
   return (
     <article className={`document-row ${doc.status.toLowerCase()}`}>
-      <div className="doc-main"><span className={`doc-icon ${doc.status.toLowerCase()}`}>{doc.status === "Received" ? "▤" : doc.status === "Unconfirmed" ? "▧" : "▥"}</span><div><div className="doc-name">{doc.name} <code>[{doc.id}]</code>{!doc.required && <span className="optional-tag">OPTIONAL</span>}</div><p>{doc.description}</p></div></div>
-      <div className="obligation"><span className="required-tag">{doc.required ? "REQUIRED" : "OPTIONAL"}</span></div>
-      <div className="doc-status"><StatusBadge status={doc.status} count={1} />{doc.status === "Unconfirmed" && <button className="confirm-button" onClick={() => onStatus(doc.id, "Received")}>✓ Mark received</button>}{doc.status === "Missing" && <button className="confirm-button upload-button" onClick={() => setNotice(`Upload selected for ${doc.name} · file transfer is disabled in this demo.`)}>＋ Upload</button>}{doc.status === "Received" && <button className="link-button" onClick={() => setNotice(`Evidence preview · ${doc.reference ?? doc.id}`)}>View evidence →</button>}</div>
-      {doc.source && <div className="doc-evidence"><span>♧</span> Source: {doc.source} <b>| Ref: {doc.reference}</b>{doc.updated && <span className="evidence-date">| Date: {doc.updated}</span>}<button onClick={() => setNotice(`Evidence preview · ${doc.reference ?? doc.id}`)}>View PDF ↗</button></div>}
+      <div className="doc-main"><span className={`doc-icon ${doc.status.toLowerCase()}`} aria-hidden="true">{doc.status === "Received" ? "▤" : doc.status === "Unconfirmed" ? "▧" : "▥"}</span><div><div className="doc-name">{doc.name}</div><p>{doc.description}</p></div></div>
+      <div className="obligation"><StatusBadge status={doc.status} /></div>
+      <div className="doc-status">{doc.status === "Unconfirmed" && <button className="confirm-button" onClick={() => onStatus(doc.id, "Received")}>Confirm received (demo)</button>}{doc.status === "Missing" && <span className="demo-only-action">Upload unavailable in demo</span>}{doc.status === "Received" && doc.source && <span className="evidence-label">Evidence on file</span>}</div>
+      {doc.source && <div className="doc-evidence"><span>Source: {doc.source}</span>{doc.updated && <span className="evidence-date">Updated {doc.updated}</span>}</div>}
     </article>
   );
 }
 
 function ChaseSummary({ item, docs, onChase }: { item: CaseRecord; docs: CaseRecord["documents"]; onChase: () => void }) {
-  const chaseDocs = docs.filter((doc) => doc.status !== "Received");
+  const chaseDocs = docs.filter((doc) => doc.required && doc.status === "Missing");
   return (
-    <aside className="chase-summary">
-      <div className="chase-summary-head"><span>▧</span><h2>Client Chase Generator</h2><span className="auto-resolve">AUTO-RESOLVE<br />ON</span></div>
+    <details className="chase-summary">
+      <summary className="chase-summary-head"><span>▧</span><h2>Follow-up details</h2><span>{chaseDocs.length} missing</span></summary>
       <div className="chase-summary-body">
-        <div className="contact-grid"><span>Recipient:</span><b>cfo@{item.client.toLowerCase().replaceAll(" ", "").replace("llc", "logistics.com")}</b><span>CC Entity:</span><b>treasury-onboard@tier1bank.com</b><span>Cadence Policy:</span><b>Standard Corporate (T-7, T-3, T-0)</b></div>
-        <div className="eyebrow section-label">Chasing Payload Items ({chaseDocs.length})</div>
+        <p className="demo-explainer">Sample follow-up preview only. This demo will not email the client.</p>
+        <div className="eyebrow section-label">Documents to request</div>
         <div className="payload-list">{chaseDocs.map((doc) => <div key={doc.id} className={`payload-item ${doc.status.toLowerCase()}`}><span>{doc.name}</span><StatusBadge status={doc.status} count={1} /></div>)}</div>
-        <div className="eyebrow section-label">Subject Preview</div><div className="subject-preview">[URGENT] Document Update Required: {item.id}</div>
-        <div className="eyebrow section-label">Formatted Chase Body</div><div className="body-preview">Dear Treasury Team,<br /><br />Our compliance review indicates outstanding filing and documents requiring formal re-affirmation for Case {item.id}.<br /><br />Please use your secure upload portal to submit the outstanding items.</div>
-        <button className="button button-dark full-button" onClick={onChase}>Open Chase Composer →</button>
-        <div className="summary-foot"><span>Next cadence: T-3 reminder</span><span>Draft only</span></div>
+        <div className="eyebrow section-label">Case reference</div><div className="subject-preview">{item.id} · {item.client}</div>
+        {chaseDocs.length > 0 && <button className="button full-button" onClick={onChase}>Review sample message</button>}
       </div>
-    </aside>
+    </details>
   );
 }
 
@@ -413,14 +396,14 @@ function ChasePage(props: ChasePageProps) {
       <section className="composer">
         <header className="composer-header"><div><span>✉</span><div><h2>Outbound Chase Dispatcher</h2><small>Protocol: Institutional Secure Direct Relay</small></div></div><span className="cadence-badge">CADENCE: T-3 REMINDER</span></header>
         <div className="composer-form">
-          <section className={`blocking-note ${reviewResolved ? "resolved" : ""}`}><div className="blocking-title"><span>⚠</span><strong>{reviewResolved ? "Review item acknowledged" : "Blocking review items (1 unresolved note):"}</strong><span className="hard-gate">HARD GATE</span></div><blockquote>• Note 1: “Client sent unencrypted signatory list on Oct 19 via personal email — verify signatory authenticity against passport scan prior to chase dispatch.”</blockquote><label className="resolve-check"><input type="checkbox" checked={reviewResolved} onChange={(event) => setReviewResolved(event.target.checked)} /><span>{reviewResolved ? "Review note acknowledged" : "Resolve & Acknowledge Note"}</span><em>Officer sign-off required</em></label><p>{reviewResolved ? "Acknowledgment recorded for this demo session." : "Send button is locked and disabled until all RM review notes are resolved."}</p></section>
+          <section className={`blocking-note ${reviewResolved ? "resolved" : ""}`}><div className="blocking-title"><span>⚠</span><strong>{reviewResolved ? "Sample review acknowledged" : "Sample review note"}</strong><span className="hard-gate">DEMO</span></div><blockquote>The signatory list needs verification before a real client follow-up.</blockquote><p>This is sample data. Checking the box below does not verify a document or authorize a real email.</p><label className="resolve-check"><input type="checkbox" checked={reviewResolved} onChange={(event) => setReviewResolved(event.target.checked)} /><span>{reviewResolved ? "Sample note acknowledged" : "Acknowledge for this demo"}</span></label></section>
           <div className="form-field"><label htmlFor="recipients">To Recipient(s): <small>Corporate Entity Officers</small></label><input id="recipients" value={recipient} onChange={(event) => setRecipient(event.target.value)} /></div>
           <div className="form-field"><label htmlFor="cc">CC / Compliance Archive: <small>Audit Archiving Node</small></label><input id="cc" value={cc} onChange={(event) => setCc(event.target.value)} /></div>
           <div className="form-field"><label htmlFor="subject">Subject Line:</label><input id="subject" value={subject} onChange={(event) => setSubject(event.target.value)} /></div>
           <div className="form-field body-field"><label htmlFor="email-body">Email Draft Body (Bank Standard): <button className="link-button" onClick={() => setEmailBody(`Dear Treasury Team at ${item.client},\\n\\nWe are following up on your institutional onboarding documentation for Case Ref ${item.id}. Please submit the outstanding items using your secure upload portal.\\n\\nRegards,\\nInstitutional Onboarding Team`)}>Revert to Master Template</button></label><div className="editor-toolbar"><button aria-label="Bold">B</button><button aria-label="Italic"><i>I</i></button><button aria-label="List">☷</button><span /> <button aria-label="Insert link">↗</button><span className="editor-filter">Auto-Filtered: Missing Items Only</span></div><textarea id="email-body" value={emailBody} onChange={(event) => setEmailBody(event.target.value)} /></div>
-          <div className="secure-token">⬡ <span>One-Time Secure Upload Token: <b>#$TR-{item.id}-EXP72H</b></span><strong>Valid (72h Expiry)</strong></div>
+          <div className="secure-token">DEMO <span>Example upload reference: <b>{item.id}-SAMPLE</b></span><strong>Not a real upload link</strong></div>
         </div>
-        <footer className="composer-footer"><span>{saved ? "Draft auto-saved just now" : "Draft not yet saved"}</span><div><button className="button" onClick={onSave}>▣ Save Draft</button><button className="button button-dark" disabled={!reviewResolved} onClick={onDispatch}>{reviewResolved ? "➤ Simulate Dispatch" : "♙ Send Chase Email"}</button></div></footer>
+        <footer className="composer-footer"><span>{saved ? "Sample draft saved in this session" : "Sample message · not connected to email"}</span><div><button className="button" onClick={onSave}>Save sample draft</button><button className="button button-dark" disabled={!reviewResolved} onClick={onDispatch}>Simulate only · no email sent</button></div></footer>
       </section>
     </div>
   );
