@@ -16,6 +16,8 @@ The `Dockerfile` builds the Vite app and serves the static SPA with unprivileged
 
 The `.github/workflows/ci-cd.yml` workflow type-checks, builds, and validates the Docker image on pull requests and pushes to `main`. A successful push to `main` builds and publishes the image to `ghcr.io/anandnavanee/fde`; the Cloud Run job deploys it to `asia-south1` when deployment is explicitly enabled and its WIF configuration is present. The Cloud Run deployment requests public access.
 
+The same workflow publishes the frontend as a static public site on GitHub Pages at `https://anandnavanee.github.io/fde/`. This demo build does not depend on Cloud Run, GCP IAM, or a backend.
+
 Before the first deployment:
 
 1. Configure Workload Identity Federation for GitHub Actions in project `slabspro-slabsuser45`. An administrator can run the following in a shell with `gcloud` access:
